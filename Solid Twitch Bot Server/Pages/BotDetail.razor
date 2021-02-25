@@ -1,0 +1,138 @@
+﻿@page "/bots/{id}"
+@using Shares;
+@using Shares.Model;
+@using Services;
+@inject IBotService BotService;
+@inject NavigationManager NavigationManager
+
+<h3>Mein Bot (@Id)</h3>
+<br />
+<hr />
+<div>
+    <EditForm Model="MyBot" OnValidSubmit="@Submit">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-sm-2">
+                    <label class="font-weight-bold">Channel</label>
+                    <input class="form-control" @bind-value="@MyBot.BotSetting.Channel">
+                </div>
+                <div class="col-sm-2">
+                    <label class="font-weight-bold">Twitch Username</label>
+                    <input class="form-control" @bind-value="@MyBot.BotSetting.TwitchUsername">
+                </div>
+                <div class="col-sm-3">
+                    <label class="font-weight-bold">Twitch Auth Token</label>
+                    <input class="form-control" @bind-value="@MyBot.BotSetting.TwitchOAuth">
+                </div>
+            </div>
+            <br />
+            <div class="row">
+                <div class="col-sm-2">
+                    <label class="font-weight-bold">Erlaubte Nachrichten im Zeitraum</label>
+                    <input class="form-control" @bind-value="@MyBot.BotSetting.MessagesAllowedInPeriod">
+                    <p class="float-right font-weight-bold">Stück</p>
+                </div>
+                <div class="col-sm-2">
+                    <label class="font-weight-bold">Zeitraum</label>
+                    <input class="form-control" @bind-value="@MyBot.BotSetting.ThrottlingPeriod">
+                    <p class="float-right font-weight-bold">Sekunden</p>
+                </div>
+            </div>
+            <hr />
+        </div>
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-sm-4">
+                    <label class="font-weight-bold">Nachricht bei Sub</label>
+                    <input class="form-control" placeholder="Danke für dein Sub!" @bind-value="@MyBot.BotSetting.SubMessage">
+                </div>
+                <div class="col-sm-4">
+                    <label class="font-weight-bold">Nachricht bei @@Message</label>
+                    <input class="form-control" placeholder="Mich gibt's gar nicht!" @bind-value="@MyBot.BotSetting.ChatDMResponse">
+                </div>
+            </div>
+            <br />
+            <div class="row">
+                <div class="col-sm-4">
+                    <label class="font-weight-bold">Nachricht bei Channel Beitritt</label>
+                    <input class="form-control" placeholder="Hallo! Ich bin der Bot von diesem Channel!" @bind-value="@MyBot.BotSetting.ChannelJoinMessage">
+                </div>
+                <div class="col-sm-4">
+                    <label class="font-weight-bold">Nachricht bei Channel Verlassen</label>
+                    <input class="form-control" placeholder="Bravo six, going dark!" @bind="MyBot.BotSetting.ChannelLeaveMessage">
+                </div>
+            </div>
+            <hr />
+            <div class="row">
+                <div class="col-sm-4">
+                    <label class="font-weight-bold">OBS Szenen</label>
+                    <div class="input-group">
+                        <input class="form-control" placeholder="Szene Name" style="margin-right:10px" @bind-value="@SceneName" />
+                        <button type="button" class="btn btn-secondary" @onclick="@(e => AddScene(SceneName))">Szene hinzufügen</button>
+                    </div>
+                </div>
+                <div class="col-sm-4">
+                    <ul class="list-group">
+                        <!--Add scene obj with props-->
+                        @foreach (var scene in MyBot.BotSetting.Scenes)
+                        {
+                            <li class="list-group-item d-flex justify-content-between align-items-lg-center">
+                                @scene
+                                <button type="button" class="btn btn-primary" @onclick="@(e => DeleteScene(@scene))">Löschen</button>
+                            </li>
+                        }
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <br />
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-sm">
+                    <input type="submit" class="form-control btn btn-primary" value="Speichern" @onclick="@(e => RedirectToBotsPage())" />
+                </div>
+                <div class="col-sm">
+                    <input type="submit" class="form-control btn btn-secondary" value="Abbrechen" @onclick="@(e => RedirectToBotsPage())" />
+                </div>
+            </div>
+        </div>
+
+    </EditForm>
+
+</div>
+@code {
+
+    [Parameter]
+    public string Id { get; set; }
+
+    private string SceneName;
+
+    public TwitchClientExt MyBot { get; set; }
+
+    protected override void OnInitialized()
+    {
+        BotService = new BotService();
+        MyBot = BotService.GetBot(Id);
+    }
+
+    public void Submit()
+    {
+        BotService.SaveBotsSettings();
+    }
+
+    public void AddScene(string sceneName)
+    {
+        MyBot.BotSetting.Scenes.Add(sceneName);
+    }
+
+    public void DeleteScene(string sceneName)
+    {
+        MyBot.BotSetting.Scenes.Remove(sceneName);
+    }
+
+    public void RedirectToBotsPage()
+    {
+        NavigationManager.NavigateTo("/bots");
+    }
+
+}

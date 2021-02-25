@@ -1,0 +1,100 @@
+﻿@page "/newbot"
+@using Shares;
+@using Shares.Model;
+@using Services;
+@inject IBotService BotService;
+@inject NavigationManager NavigationManager
+
+<h3>NewBot</h3>
+@*//TODO: margins*@
+<EditForm Model="MyBot" OnValidSubmit="@Submit">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-sm-2">
+                <label class="font-weight-bold">Channel</label>
+                <input class="form-control" @bind="MyBot.BotSetting.Channel">
+            </div>
+            <div class="col-sm-2">
+                <label class="font-weight-bold">Twitch Username</label>
+                <input class="form-control" @bind="MyBot.BotSetting.TwitchUsername">
+            </div>
+            <div class="col-sm-3">
+                <label class="font-weight-bold">Twitch Auth Token</label>
+                <input class="form-control" @bind="MyBot.BotSetting.TwitchOAuth">
+            </div>
+        </div>
+        <br />
+        <div class="row">
+            <div class="col-sm-2">
+                <label class="font-weight-bold">Erlaubte Nachrichten im Zeitraum</label>
+                <input class="form-control" @bind="MyBot.BotSetting.MessagesAllowedInPeriod">
+                <p class="float-right font-weight-bold">Stück</p>
+            </div>
+            <div class="col-sm-2">
+                <label class="font-weight-bold">Zeitraum</label>
+                <input class="form-control" @bind="MyBot.BotSetting.ThrottlingPeriod">
+                <p class="float-right font-weight-bold">Sekunden</p>
+            </div>
+        </div>
+        <hr />
+    </div>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-sm-4">
+                <label class="font-weight-bold">Nachricht bei Sub</label>
+                <input class="form-control" placeholder="Danke für dein Sub!" @bind="MyBot.BotSetting.SubMessage">
+            </div>
+            <div class="col-sm-4">
+                <label class="font-weight-bold">Nachricht bei @@Message</label>
+                <input class="form-control" placeholder="Mich gibt's gar nicht!" @bind="MyBot.BotSetting.ChatDMResponse">
+            </div>
+        </div>
+        <br />
+        <div class="row">
+            <div class="col-sm-4">
+                <label class="font-weight-bold">Nachricht bei Channel Beitritt</label>
+                <input class="form-control" placeholder="Hallo! Ich bin der Bot von diesem Channel!" @bind="MyBot.BotSetting.ChannelJoinMessage">
+            </div>
+            <div class="col-sm-4">
+                <label class="font-weight-bold">Nachricht bei Channel Verlassen</label>
+                <input class="form-control" placeholder="Bravo six, going dark!" @bind="MyBot.BotSetting.ChannelLeaveMessage">
+            </div>
+        </div>
+    </div>
+    <br />
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-sm">
+                <input type="submit" class="form-control btn btn-primary" value="Speichern" />
+            </div>
+            <div class="col-sm">
+                <input class="form-control btn btn-secondary" @onclick="@Cancel" value="Abbrechen" />
+            </div>
+        </div>
+    </div>
+
+</EditForm>
+
+@code {
+
+    public TwitchClientExt MyBot { get; set; }
+
+
+    protected override void OnInitialized()
+    {
+        MyBot = new TwitchClientExt();
+        MyBot.BotSetting = new BotSettingModel();
+    }
+
+    private void Submit()
+    {
+        BotService.CreateBot(MyBot.BotSetting);
+        BotService.SaveBotsSettings();
+        NavigationManager.NavigateTo("/bots");
+    }
+
+    private void Cancel()
+    {
+        NavigationManager.NavigateTo("/bots");
+    }
+}
