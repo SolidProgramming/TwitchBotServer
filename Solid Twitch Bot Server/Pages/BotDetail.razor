@@ -1,6 +1,7 @@
 ﻿@page "/bots/{id}"
 @using Shares;
 @using Shares.Model;
+@using Shares.Enum;
 @using Services;
 @inject IBotService BotService;
 @inject NavigationManager NavigationManager
@@ -59,31 +60,117 @@
                 </div>
                 <div class="col-sm-4">
                     <label class="font-weight-bold">Nachricht bei Channel Verlassen</label>
-                    <input class="form-control" placeholder="Bravo six, going dark!" @bind="MyBot.BotSetting.ChannelLeaveMessage">
+                    <input class="form-control" placeholder="Bravo six, going dark!" @bind-value="MyBot.BotSetting.ChannelLeaveMessage">
                 </div>
             </div>
+            <br />
+            <hr />
+            <div class="row">
+                <div class="col-sm-2">
+                    <label class="font-weight-bold">Links</label>
+                    <label>Wer darf Links posten?</label>
+                    <div class="form-check form-control-lg">
+                        <input class="form-check-input" type="radio" name="LinkRadioGroup" id="LinkAccessRadio1" checked="@(ChatLinkAccessibility == ChatLinkAccessibility.Public)" @onchange="@(e => OnChatLinkAccessibilityChanged(0))">
+                        <label class="form-check-label" for="LinkAccessRadio1">
+                            Öffentlich
+                        </label>
+                    </div>
+                    <div class="form-check form-control-lg">
+                        <input class="form-check-input" type="radio" name="LinkRadioGroup" id="LinkAccessRadio2" checked="@(ChatLinkAccessibility == ChatLinkAccessibility.Private)" @onchange="@(e => OnChatLinkAccessibilityChanged(1))">
+                        <label class="form-check-label" for="LinkAccessRadio2">
+                            Privat/Mods
+                        </label>
+                    </div>
+                </div>
+                <div class="col-sm-2">                    
+                    <label class="font-weight-bold">Handlung beim unautorisierten Posten von Links</label>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="ActionRadioGroup" id="ActionRadio1" >
+                        <label class="form-check-label" for="ActionRadio1">
+                            Nachricht löschen
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="ActionRadioGroup" id="ActionRadio2">
+                        <label class="form-check-label" for="ActionRadio2">
+                            Nutzer sperren
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <br />
+            <hr />
+            <div class="row">
+                <div class="col-md-8">
+                    <label class="font-weight-bold">Chat Commands</label>
+                    <ul class="list-group">
+                        @{
+                            i = 0;
+                            j = 0;
+                        }
+                        @foreach (var textcommand in TextChatCommand.GetCommandNames())
+                        {
+                            //TODO: use rows instead of list
+                            string RadioPublicId = "RadioPublic" + i;
+                            string RadioPrivateId = "RadioPrivate" + j;
+                            string RadioGroupName = "RadioGroup" + i;
+                            <li class="list-group-item d-flex justify-content-between align-items-lg-center font-weight-bold">
+                                <span class="pr-3">@textcommand</span>
+                                <input class="form-control" @bind-value="@commandValue" />
+                                <div class="form-check-inline form-control-lg pl-3">
+                                    <input class="form-check-input" type="radio" id="@RadioPublicId" name="@RadioGroupName" checked @onchange="@(e => OnChatCommandAccessibilityChanged(textcommand, ChatCommandAccessibility.Public))">
+                                    <label class="form-check-label" for="@RadioPublicId">
+                                        Öffentlich
+                                    </label>
+                                    <input class="form-check-input" type="radio" id="@RadioPrivateId" name="@RadioGroupName" @onchange="@(e => OnChatCommandAccessibilityChanged(textcommand, ChatCommandAccessibility.Private))">
+                                    <label class="form-check-label" for="@RadioPrivateId">
+                                        Privat/Mods
+                                    </label>
+                                </div>
+                            </li>
+                            i++;
+                            j++;
+                        }
+                    </ul>
+                </div>
+            </div>
+            <br />
             <hr />
             <div class="row">
                 <div class="col-sm-4">
                     <label class="font-weight-bold">OBS Szenen</label>
-                    <div class="input-group">
-                        <input class="form-control" placeholder="Szene Name" style="margin-right:10px" @bind-value="@SceneName" />
-                        <button type="button" class="btn btn-secondary" @onclick="@(e => AddScene(SceneName))">Szene hinzufügen</button>
+                    <input class="form-control mb-3" placeholder="Szene Name" @bind-value="@SceneName" />
+                    <div class="form-check-inline form-control-lg">
+                        <input class="form-check-input" type="radio" name="SceneRadioGroup" id="SceneAccessRadio1" checked @onchange="@(e => OnSceneAccessibilityChanged(0))">
+                        <label class="form-check-label" for="SceneAccessRadio1">
+                            Öffentlich
+                        </label>
+                    </div>
+                    <div class="form-check-inline form-control-lg">
+                        <input class="form-check-input" type="radio" name="SceneRadioGroup" id="SceneAccessRadio2" @onchange="@(e => OnSceneAccessibilityChanged(1))">
+                        <label class="form-check-label" for="SceneAccessRadio2">
+                            Privat/Mods
+                        </label>
+                    </div>
+                    <div>
+                        <button type="button" class="btn btn-secondary mt-3" @onclick="@AddScene">Szene hinzufügen</button>
                     </div>
                 </div>
                 <div class="col-sm-4">
                     <ul class="list-group">
-                        <!--Add scene obj with props-->
                         @foreach (var scene in MyBot.BotSetting.Scenes)
                         {
-                            <li class="list-group-item d-flex justify-content-between align-items-lg-center">
-                                @scene
-                                <button type="button" class="btn btn-primary" @onclick="@(e => DeleteScene(@scene))">Löschen</button>
+                            <li class="list-group-item d-flex justify-content-between align-items-lg-center font-weight-bold">
+                                <span class="text-success">@scene.Name</span>
+                                <span class="@(scene.Accessibility == SceneAccessibility.Public ? "text-primary" : "text-secondary")">@(scene.Accessibility == SceneAccessibility.Public ? "Öffentlich" : "Privat/Mods")</span>
+                                <button type="button" class="btn btn-outline-primary" @onclick="@(e => DeleteScene(scene.Name))">Löschen</button>
                             </li>
                         }
                     </ul>
                 </div>
             </div>
+            <br />
+            <hr />
         </div>
         <br />
         <div class="container-fluid">
@@ -96,16 +183,28 @@
                 </div>
             </div>
         </div>
-
+        <br />
     </EditForm>
-
 </div>
 @code {
+    public int i = 0;
+    public int j = 0;
+
+    public string commandValue = "";
 
     [Parameter]
     public string Id { get; set; }
 
     private string SceneName;
+    private string CommandName;
+
+    private SceneAccessibility SceneAccessibility = SceneAccessibility.Public;
+    private ChatCommandAccessibility ChatCommandAccessibility = ChatCommandAccessibility.Public;
+    private ChatLinkAccessibility ChatLinkAccessibility = ChatLinkAccessibility.Public;
+
+    private bool ChatLinkAccessibilityPublic = false;
+    private bool ChatLinkAccessibilityPrivate = false;
+
 
     public TwitchClientExt MyBot { get; set; }
 
@@ -113,6 +212,8 @@
     {
         BotService = new BotService();
         MyBot = BotService.GetBot(Id);
+
+        ChatLinkAccessibility = MyBot.BotSetting.ChatLinkAccessibility;
     }
 
     public void Submit()
@@ -120,19 +221,50 @@
         BotService.SaveBotsSettings();
     }
 
-    public void AddScene(string sceneName)
+    public void AddScene()
     {
-        MyBot.BotSetting.Scenes.Add(sceneName);
+        MyBot.BotSetting.Scenes.Add(new SceneModel { Name = SceneName, Accessibility = SceneAccessibility });
     }
 
     public void DeleteScene(string sceneName)
     {
-        MyBot.BotSetting.Scenes.Remove(sceneName);
+        MyBot.BotSetting.Scenes.RemoveAll(_ => _.Name == sceneName);
     }
 
     public void RedirectToBotsPage()
     {
         NavigationManager.NavigateTo("/bots");
+    }
+
+    public void OnSceneAccessibilityChanged(int mode)
+    {
+        SceneAccessibility = (SceneAccessibility)mode;
+    }
+
+    public void OnChatCommandAccessibilityChanged(int mode)
+    {
+        ChatCommandAccessibility = (ChatCommandAccessibility)mode;
+    }
+
+    public void AddChatCommand()
+    {
+        // MyBot.BotSetting.ChatCommands.Add(new ChatCommandModel { Accessibility = ChatCommandAccessibility, ChatCommandText = CommandName });
+    }
+
+    public void DeleteChatCommand(string commandName)
+    {
+        MyBot.BotSetting.ChatCommands.RemoveAll(_ => _.ChatCommandText == commandName);
+    }
+
+    public void OnChatCommandAccessibilityChanged(string textCommand, ChatCommandAccessibility commandAccessibility)
+    {
+
+    }
+
+    public void OnChatLinkAccessibilityChanged(int mode)
+    {
+        ChatLinkAccessibility = (ChatLinkAccessibility)mode;
+        MyBot.BotSetting.ChatLinkAccessibility = ChatLinkAccessibility;
     }
 
 }

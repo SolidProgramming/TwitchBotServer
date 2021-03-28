@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Shares.Enum;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -18,6 +19,8 @@ namespace Shares.Model
         public string ChatDMResponse { get; set; }
         public string ChannelJoinMessage { get; set; }
         public string ChannelLeaveMessage { get; set; }
-        public List<string> Scenes { get; set; } = new List<string>();
+        public List<SceneModel> Scenes { get; set; } = new List<SceneModel>();
+        public List<ChatCommandModel> ChatCommands { get; set; } = new List<ChatCommandModel>();
+        public ChatLinkAccessibility ChatLinkAccessibility { get; set; } = ChatLinkAccessibility.Public;
     }
 }

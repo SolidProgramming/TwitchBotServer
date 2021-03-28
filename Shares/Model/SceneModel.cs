@@ -7,9 +7,9 @@ using Shares.Enum;
 
 namespace Shares.Model
 {
-    public class ChatCommandModel
+    public class SceneModel
     {
-        public string ChatCommandText { get; set; }
-        public ChatCommand ChatCommand { get; set; }
+        public string Name { get; set; }
+        public SceneAccessibility Accessibility { get; set; } 
     }
 }

@@ -6,6 +6,7 @@ using Newtonsoft.Json;
 using Logger;
 using Shares.Model;
 using Shares;
+using Shares.Enum;
 using TwitchLib.Client.Models;
 using TwitchLib.Communication.Models;
 using TwitchLib.Communication.Clients;
@@ -14,6 +15,7 @@ using System.Linq;
 using TwitchLib.Client.Events;
 using System.Threading.Tasks;
 using OBSWebsocketController;
+using System.Text.RegularExpressions;
 
 namespace Bot_Manager
 {
@@ -87,6 +89,12 @@ namespace Bot_Manager
         {
             Setting.SaveBotsCredentials(bots);
         }
+        public static void SetBotSettings(string id, BotSettingModel botSetting)
+        {
+            var bot = Bots.SingleOrDefault(_ => _.BotSetting.Id == id);
+
+            bot.BotSetting = botSetting;
+        }
         public static List<TwitchClientExt> ReadBotSettings()
         {
             var tempSettings = Setting.ReadBotClientCredentials();
@@ -112,7 +120,7 @@ namespace Bot_Manager
             bot.OnConnectionError += TwitchClient_OnConnectionError;
             bot.OnMessageReceived += TwitchClient_OnMessageReceived;
             bot.Status = BotClientStatusModel.AwaitingConnection;
-            await Task.Delay(1);            
+            await Task.Delay(1);
             bot.Connect();
             bot.Status = BotClientStatusModel.Started;
         }
@@ -153,7 +161,7 @@ namespace Bot_Manager
         private static void TwitchClient_OnMessageReceived(object sender, OnMessageReceivedArgs e)
         {
             var twitchClient = (TwitchClientExt)sender;
-            HandleTwitchMessage(e.ChatMessage.Message, ref twitchClient, e);
+            HandleTwitchMessage(e.ChatMessage.Message, ref twitchClient, e);           
         }
         private static void TwitchClient_OnConnectionError(object sender, OnConnectionErrorArgs e)
         {
@@ -166,48 +174,70 @@ namespace Bot_Manager
         private static void TwitchClient_OnJoinedChannel(object sender, OnJoinedChannelArgs e)
         {
             var bot = (TwitchClientExt)sender;
-            bot.SendMessage(e.Channel, bot.BotSetting.ChannelJoinMessage);           
+            bot.SendMessage(e.Channel, bot.BotSetting.ChannelJoinMessage);
         }
         private static void HandleTwitchMessage(string message, ref TwitchClientExt twitchClient, OnMessageReceivedArgs e)
         {
-            var chatCommand = new ChatCommandModel();
-            var isCommand = IsCommand(message, out chatCommand);
+            //Shares.Enum.ChatCommand chatCommand = new();
+            //var isCommand = IsCommand(message, out chatCommand);
 
-            if (isCommand && chatCommand != ChatCommandModel.none)
+            //if (isCommand && chatCommand != Shares.Enum.ChatCommand.None)
+            //{
+            //    HandleCommand(chatCommand, ref twitchClient, e);
+            //}
+
+            Console.WriteLine(twitchClient.BotSetting.ChatLinkAccessibility);
+
+            if (twitchClient.BotSetting.ChatLinkAccessibility != ChatLinkAccessibility.Public)
             {
-                HandleCommand(chatCommand, ref twitchClient, e);
+                
             }
+
+
         }
-        private static bool IsCommand(string message, out ChatCommandModel chatCommand)
+        private static bool IsCommand(string message, out Shares.Enum.ChatCommand chatCommand)
         {
             var command = message.ToChatCommand();
 
-            if (command != ChatCommandModel.none)
-            {
-                chatCommand = command;
-                return true;
-            }
+            //if (command != ChatCommandModel.none)
+            //{
+            //    chatCommand = command;
+            //    return true;
+            //}
 
-            chatCommand = ChatCommandModel.none;
+            //chatCommand = ChatCommandModel.none;
+            chatCommand = Shares.Enum.ChatCommand.None;
             return false;
         }
-        private static void HandleCommand(ChatCommandModel chatCommand, ref TwitchClientExt twitchClient, OnMessageReceivedArgs e)
+        private static void HandleCommand(Shares.Enum.ChatCommand chatCommand, ref TwitchClientExt twitchClient, OnMessageReceivedArgs e)
         {
-            switch (chatCommand)
-            {
-                case ChatCommandModel.none:
-                    break;
-                case ChatCommandModel.wheel:
-                    TriggerSceneSwitch("WOF");
-                    break;
-                default:
-                    break;
-            }
+            //switch (chatCommand)
+            //{
+            //    case ChatCommandModel.none:
+            //        break;
+            //    case ChatCommandModel.wheel:
+            //        TriggerSceneSwitch("WOF");
+            //        break;
+            //    default:
+            //        break;
+            //}
+        }
+        private static bool IsValidUrl(string url)
+        {
+            string pattern = @"^(http|https|ftp|)\://|[a-zA-Z0-9\-\.]+\.[a-zA-Z](:[a-zA-Z0-9]*)?/?([a-zA-Z0-9\-\._\?\,\'/\\\+&amp;%\$#\=~])*[^\.\,\)\(\s]$";
+            Regex reg = new Regex(pattern, RegexOptions.Compiled | RegexOptions.IgnoreCase);
+            return reg.IsMatch(url);
         }
         public static void TriggerSceneSwitch(string sceneName)
         {
             OBSController.SwitchToScene(sceneName);
         }
-        
+        public static void GetChatCommands(string botId)
+        {
+            var botSetting = Bots.SingleOrDefault(_ => _.BotSetting.Id == botId).BotSetting;
+
+
+        }
+
     }
 }

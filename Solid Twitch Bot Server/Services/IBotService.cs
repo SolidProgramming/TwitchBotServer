@@ -11,6 +11,7 @@ namespace Solid_Twitch_Bot_Server.Services
         List<TwitchClientExt> GetBots();
         TwitchClientExt GetBot(string id);
         void SaveBotsSettings();
+        void SetBotSettings(string id, BotSettingModel botSetting);
         List<TwitchClientExt> ReadBotsSettings();
         TwitchClientExt CreateBot(TwitchClientExt botClient);
         TwitchClientExt CreateBot(BotSettingModel botSetting);

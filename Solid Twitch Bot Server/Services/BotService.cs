@@ -14,32 +14,30 @@ namespace Solid_Twitch_Bot_Server.Services
         {
             return BotManager.CreateBot(botClient);
         }
-
         public TwitchClientExt CreateBot(BotSettingModel botSetting)
         {
             return BotManager.CreateBot(botSetting);
         }
-
         public TwitchClientExt GetBot(string id)
         {
             return BotManager.GetBot(id);
         }
-
         public List<TwitchClientExt> GetBots()
         {
             return BotManager.GetBots(); 
         }
-
         public List<TwitchClientExt> ReadBotsSettings()
         {
             return BotManager.ReadBotSettings();
         }
-
         public void SaveBotsSettings()
         {
             BotManager.SaveBotsSettings(GetBots());
         }
-
+        public void SetBotSettings(string id, BotSettingModel botSetting)
+        {
+            BotManager.SetBotSettings(id, botSetting);
+        }
         public async Task StartBot(string botId)
         {
             await BotManager.StartBot(botId);
