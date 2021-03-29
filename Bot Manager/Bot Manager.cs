@@ -190,7 +190,7 @@ namespace Bot_Manager
             {
                 if (twitchClient.BotSetting.ChatLinkAccessibility == ChatLinkAccessibility.Private)
                 {
-                    if (!e.ChatMessage.IsModerator && !e.ChatMessage.IsMe && !e.ChatMessage.IsBroadcaster && !e.ChatMessage.IsStaff)
+                    if (!e.ChatMessage.IsVip && !e.ChatMessage.IsModerator && !e.ChatMessage.IsMe && !e.ChatMessage.IsBroadcaster && !e.ChatMessage.IsStaff)
                     {                        
                         TimeoutUser(ref twitchClient, e.ChatMessage.Channel, e.ChatMessage.Username, 1);
                     }
