@@ -7,7 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Bot Manager\Bot Manager.csproj" />
+    <ProjectReference Include="..\Bot Manager\BotManager.csproj" />
     <ProjectReference Include="..\Shares\Shares.csproj" />
   </ItemGroup>
 

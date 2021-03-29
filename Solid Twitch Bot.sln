@@ -7,11 +7,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Solid Twitch Bot Server", "
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Logger", "Logger\Logger.csproj", "{00C3279A-8C2B-44EE-8ECC-B41DD0EE26F3}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bot Manager", "Bot Manager\Bot Manager.csproj", "{4438E4A5-675E-4B9F-81AB-E2495F4F79E1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BotManager", "Bot Manager\BotManager.csproj", "{4438E4A5-675E-4B9F-81AB-E2495F4F79E1}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Shares", "Shares\Shares.csproj", "{92098E4E-6DAA-4415-8883-0244E4EE0D6D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OBSWebsocketController", "OBSWebsocketController\OBSWebsocketController.csproj", "{BD39F542-C7CC-4125-8366-64952590D142}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OBSWebsocketController", "OBSWebsocketController\OBSWebsocketController.csproj", "{BD39F542-C7CC-4125-8366-64952590D142}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
