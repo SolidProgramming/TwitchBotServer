@@ -17,6 +17,7 @@ namespace Solid_Twitch_Bot_Server.Services
         TwitchClientExt CreateBot(BotSettingModel botSetting);
         Task StartBot(string botId);
         Task StopBot(string botId);
-        void DeleteBot(string botId);
+        Task DeleteBot(string botId);
+        BotSettingModel GetBotSettings(string botId);
     }
 }

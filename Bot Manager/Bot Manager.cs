@@ -74,6 +74,10 @@ namespace Bot_Manager
         {
             return Bots.SingleOrDefault(_ => _.BotSetting.Id == id);
         }
+        public static BotSettingModel GetBotSettings(string botId)
+        {
+            return Bots.SingleOrDefault(_ => _.BotSetting.Id == botId).BotSetting;
+        }
         public static List<TwitchClientExt> GetBots()
         {
             if (Bots.Count() == 0)
@@ -180,15 +184,7 @@ namespace Bot_Manager
             bot.SendMessage(e.Channel, bot.BotSetting.ChannelJoinMessage);
         }
         private static void HandleTwitchMessage(ref TwitchClientExt twitchClient, OnMessageReceivedArgs e)
-        {
-            //Shares.Enum.ChatCommand chatCommand = new();
-            //var isCommand = IsCommand(message, out chatCommand);
-
-            //if (isCommand && chatCommand != Shares.Enum.ChatCommand.None)
-            //{
-            //    HandleCommand(chatCommand, ref twitchClient, e);
-            //}
-
+        {           
             if (IsValidUrl(e.ChatMessage.Message))
             {
                 if (twitchClient.BotSetting.ChatLinkAccessibility == ChatLinkAccessibility.Private)
@@ -201,27 +197,11 @@ namespace Bot_Manager
                         }else if(twitchClient.BotSetting.ChatLinkAction == ChatLinkAction.BanUser)
                         {
                             TimeoutUser(ref twitchClient, twitchClient.BotSetting.Channel, e.ChatMessage.Username, (int)TimeSpan.FromMinutes(15).TotalSeconds);
-                        }
-                        
+                        }                        
                     }
                 }
             }
-
-        }
-        private static bool IsCommand(string message, out Shares.Enum.ChatCommand chatCommand)
-        {
-            var command = message.ToChatCommand();
-
-            //if (command != ChatCommandModel.none)
-            //{
-            //    chatCommand = command;
-            //    return true;
-            //}
-
-            //chatCommand = ChatCommandModel.none;
-            chatCommand = Shares.Enum.ChatCommand.None;
-            return false;
-        }
+        }        
         private static void HandleCommand(Shares.Enum.ChatCommand chatCommand, ref TwitchClientExt twitchClient, OnMessageReceivedArgs e)
         {
             //switch (chatCommand)
@@ -256,6 +236,5 @@ namespace Bot_Manager
         {
             twitchClient.SendMessage(channel, $".timeout {username} {duration} {reason}");
         }
-
     }
 }

@@ -18,9 +18,9 @@ namespace Solid_Twitch_Bot_Server.Services
         {
             return BotManager.CreateBot(botSetting);
         }
-        public TwitchClientExt GetBot(string id)
+        public TwitchClientExt GetBot(string botId)
         {
-            return BotManager.GetBot(id);
+            return BotManager.GetBot(botId);
         }
         public List<TwitchClientExt> GetBots()
         {
@@ -34,9 +34,9 @@ namespace Solid_Twitch_Bot_Server.Services
         {
             BotManager.SaveBotsSettings(GetBots());
         }
-        public void SetBotSettings(string id, BotSettingModel botSetting)
+        public void SetBotSettings(string botId, BotSettingModel botSetting)
         {
-            BotManager.SetBotSettings(id, botSetting);
+            BotManager.SetBotSettings(botId, botSetting);
         }
         public async Task StartBot(string botId)
         {
@@ -46,9 +46,13 @@ namespace Solid_Twitch_Bot_Server.Services
         {
             await BotManager.StopBot(botId);
         }
-        public void DeleteBot(string botId)
+        public async Task DeleteBot(string botId)
         {
-            BotManager.DeleteBot(botId);
+            await BotManager.DeleteBot(botId);
+        }
+        public BotSettingModel GetBotSettings(string botId)
+        {
+            return BotManager.GetBotSettings(botId);
         }
     }
 }

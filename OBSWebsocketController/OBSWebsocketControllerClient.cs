@@ -14,21 +14,17 @@ namespace OBSWebsocketController
             OBSWebsocket.Connected += OBSWebsocket_Connected;
             OBSWebsocket.Disconnected += OBSWebsocket_Disconnected;
         }
-
         public void SwitchToScene(string sceneName)
         {
             OBSWebsocket.SetCurrentScene(sceneName);
         }
-
         private void OBSWebsocket_Disconnected(object sender, EventArgs e)
         {
 
         }
-
         private void OBSWebsocket_Connected(object sender, EventArgs e)
         {
 
         }
-
     }
 }
