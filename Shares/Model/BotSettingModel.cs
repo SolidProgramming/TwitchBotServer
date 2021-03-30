@@ -22,5 +22,6 @@ namespace Shares.Model
         public List<SceneModel> Scenes { get; set; } = new List<SceneModel>();
         public List<ChatCommandModel> ChatCommands { get; set; } = new List<ChatCommandModel>();
         public ChatLinkAccessibility ChatLinkAccessibility { get; set; } = ChatLinkAccessibility.Public;
+        public ChatLinkAction ChatLinkAction { get; set; } = ChatLinkAction.DeleteMessage;
     }
 }

@@ -25,44 +25,42 @@ namespace Bot_Manager
         private static OBSWebsocketControllerClient OBSController = new OBSWebsocketControllerClient();
 
         public static TwitchClientExt CreateBot(BotSettingModel botSetting)
-        {
-            var clientOptions = new ClientOptions
-            {
-                MessagesAllowedInPeriod = botSetting.MessagesAllowedInPeriod,
-                ThrottlingPeriod = TimeSpan.FromSeconds(botSetting.ThrottlingPeriod)
-            };
-
+        {          
             var credentials = new ConnectionCredentials(botSetting.TwitchUsername, botSetting.TwitchOAuth);
-            //var customClient = new WebSocketClient(clientOptions);
-
+            
             if (string.IsNullOrEmpty(botSetting.Id))
             {
                 botSetting.Id = Guid.NewGuid().ToString();
             }
 
-            var botClient = new TwitchClientExt()
+            var bot = new TwitchClientExt()
             {
-                BotSetting = botSetting
+                BotSetting = botSetting                 
             };
 
-            botClient.Initialize(credentials, botSetting.Channel);
+            bot.OnJoinedChannel += TwitchClient_OnJoinedChannel;
+            bot.OnConnected += TwitchClient_OnConnected;
+            bot.OnConnectionError += TwitchClient_OnConnectionError;
+            bot.OnMessageReceived += TwitchClient_OnMessageReceived;
 
-            Bots.Add(botClient);
+            bot.Initialize(credentials, botSetting.Channel);
+
+            Bots.Add(bot);
 
             Setting.SaveBotsCredentials(Bots);
 
-            return botClient;
+            return bot;
         }
         public static TwitchClientExt CreateBot(TwitchClientExt bot)
-        {
-            var clientOptions = new ClientOptions
-            {
-                MessagesAllowedInPeriod = bot.BotSetting.MessagesAllowedInPeriod,
-                ThrottlingPeriod = TimeSpan.FromSeconds(bot.BotSetting.ThrottlingPeriod)
-            };
-
+        {           
             var credentials = new ConnectionCredentials(bot.BotSetting.TwitchUsername, bot.BotSetting.TwitchOAuth);
-            //var customClient = new WebSocketClient(clientOptions);
+                      
+            bot = new TwitchClientExt();
+
+            bot.OnJoinedChannel += TwitchClient_OnJoinedChannel;
+            bot.OnConnected += TwitchClient_OnConnected;
+            bot.OnConnectionError += TwitchClient_OnConnectionError;
+            bot.OnMessageReceived += TwitchClient_OnMessageReceived;
 
             bot.Initialize(credentials, bot.BotSetting.Channel);
 
@@ -115,13 +113,18 @@ namespace Bot_Manager
         {
             //TODO: without task.delay
             var bot = Bots.SingleOrDefault(_ => _.BotSetting.Id == botId);
-            bot.OnJoinedChannel += TwitchClient_OnJoinedChannel;
-            bot.OnConnected += TwitchClient_OnConnected;
-            bot.OnConnectionError += TwitchClient_OnConnectionError;
-            bot.OnMessageReceived += TwitchClient_OnMessageReceived;
+                        
             bot.Status = BotClientStatusModel.AwaitingConnection;
+
             await Task.Delay(1);
+
             bot.Connect();
+
+            if (bot.JoinedChannels.Count() == 0 && bot.FirstStartDone)
+            {
+                bot.JoinChannel(bot.BotSetting.Channel);
+            }
+            bot.FirstStartDone = true;
             bot.Status = BotClientStatusModel.Started;
         }
         public static async Task StopBot(string botId)
@@ -140,10 +143,10 @@ namespace Bot_Manager
             await Task.Delay(1);
             bot.LeaveChannel(bot.BotSetting.Channel);
             bot.Disconnect();
-            bot.OnJoinedChannel -= TwitchClient_OnJoinedChannel;
-            bot.OnConnected -= TwitchClient_OnConnected;
-            bot.OnConnectionError -= TwitchClient_OnConnectionError;
-            bot.OnMessageReceived -= TwitchClient_OnMessageReceived;
+            //bot.OnJoinedChannel -= TwitchClient_OnJoinedChannel;
+            //bot.OnConnected -= TwitchClient_OnConnected;
+            //bot.OnConnectionError -= TwitchClient_OnConnectionError;
+            //bot.OnMessageReceived -= TwitchClient_OnMessageReceived;
             bot.Status = BotClientStatusModel.Stopped;
         }
         public static async Task DeleteBot(string botId)
@@ -161,22 +164,22 @@ namespace Bot_Manager
         private static void TwitchClient_OnMessageReceived(object sender, OnMessageReceivedArgs e)
         {
             var twitchClient = (TwitchClientExt)sender;
-            HandleTwitchMessage(e.ChatMessage.Message, ref twitchClient, e);
+            HandleTwitchMessage(ref twitchClient, e);
         }
         private static void TwitchClient_OnConnectionError(object sender, OnConnectionErrorArgs e)
         {
-            Console.WriteLine(e.Error);
+            Console.WriteLine(e.Error.Message);
         }
         private static void TwitchClient_OnConnected(object sender, OnConnectedArgs e)
         {
-            Console.WriteLine(e.BotUsername);
+            Console.WriteLine("connected to channel: " + e.AutoJoinChannel);
         }
         private static void TwitchClient_OnJoinedChannel(object sender, OnJoinedChannelArgs e)
         {
             var bot = (TwitchClientExt)sender;
             bot.SendMessage(e.Channel, bot.BotSetting.ChannelJoinMessage);
         }
-        private static void HandleTwitchMessage(string message, ref TwitchClientExt twitchClient, OnMessageReceivedArgs e)
+        private static void HandleTwitchMessage(ref TwitchClientExt twitchClient, OnMessageReceivedArgs e)
         {
             //Shares.Enum.ChatCommand chatCommand = new();
             //var isCommand = IsCommand(message, out chatCommand);
@@ -191,12 +194,19 @@ namespace Bot_Manager
                 if (twitchClient.BotSetting.ChatLinkAccessibility == ChatLinkAccessibility.Private)
                 {
                     if (!e.ChatMessage.IsVip && !e.ChatMessage.IsModerator && !e.ChatMessage.IsMe && !e.ChatMessage.IsBroadcaster && !e.ChatMessage.IsStaff)
-                    {                        
-                        TimeoutUser(ref twitchClient, e.ChatMessage.Channel, e.ChatMessage.Username, 1);
+                    {
+                        if (twitchClient.BotSetting.ChatLinkAction == ChatLinkAction.DeleteMessage)
+                        {
+                            TimeoutUser(ref twitchClient, twitchClient.BotSetting.Channel, e.ChatMessage.Username, 1);
+                        }else if(twitchClient.BotSetting.ChatLinkAction == ChatLinkAction.BanUser)
+                        {
+                            TimeoutUser(ref twitchClient, twitchClient.BotSetting.Channel, e.ChatMessage.Username, (int)TimeSpan.FromMinutes(15).TotalSeconds);
+                        }
+                        
                     }
                 }
             }
-            
+
         }
         private static bool IsCommand(string message, out Shares.Enum.ChatCommand chatCommand)
         {

@@ -12,6 +12,8 @@ using System.Threading.Tasks;
 using Bot_Manager;
 using Logger;
 using Solid_Twitch_Bot_Server.Services;
+using System.Runtime.InteropServices;
+using System.Diagnostics;
 
 namespace Solid_Twitch_Bot_Server
 {
@@ -19,8 +21,7 @@ namespace Solid_Twitch_Bot_Server
     {
         public Startup(IConfiguration configuration)
         {
-            Configuration = configuration;
-            
+            Configuration = configuration;            
         }
 
         public IConfiguration Configuration { get; }
@@ -48,7 +49,12 @@ namespace Solid_Twitch_Bot_Server
                 app.UseExceptionHandler("/Error");
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
-               // app.UsePathBase("/Solid Twitch Bot");
+                // app.UsePathBase("/Solid Twitch Bot");    
+
+                if (Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER") != "true")
+                {
+                    OpenBrowser("https://localhost:5001/");
+                }
             }
                         
 
@@ -62,6 +68,25 @@ namespace Solid_Twitch_Bot_Server
                 endpoints.MapBlazorHub();
                 endpoints.MapFallbackToPage("/_Host");
             });
+        }
+        private void OpenBrowser(string url)
+        {
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                Process.Start(new ProcessStartInfo(url) { UseShellExecute = true });
+            }
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+            {
+                Process.Start("xdg-open", url);
+            }
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+            {
+                Process.Start("open", url);
+            }
+            else
+            {
+                // throw 
+            }
         }
     }
 }

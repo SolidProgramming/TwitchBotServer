@@ -85,13 +85,13 @@
                 <div class="col-sm-2">                    
                     <label class="font-weight-bold">Handlung beim unautorisierten Posten von Links</label>
                     <div class="form-check">
-                        <input class="form-check-input" type="radio" name="ActionRadioGroup" id="ActionRadio1" >
+                        <input class="form-check-input" type="radio" name="ActionRadioGroup" id="ActionRadio1" checked="@(ChatLinkAction == ChatLinkAction.DeleteMessage)">
                         <label class="form-check-label" for="ActionRadio1">
                             Nachricht löschen
                         </label>
                     </div>
                     <div class="form-check">
-                        <input class="form-check-input" type="radio" name="ActionRadioGroup" id="ActionRadio2">
+                        <input class="form-check-input" type="radio" name="ActionRadioGroup" id="ActionRadio2" checked="@(ChatLinkAction == ChatLinkAction.BanUser)">
                         <label class="form-check-label" for="ActionRadio2">
                             Nutzer sperren
                         </label>
@@ -201,6 +201,7 @@
     private SceneAccessibility SceneAccessibility = SceneAccessibility.Public;
     private ChatCommandAccessibility ChatCommandAccessibility = ChatCommandAccessibility.Public;
     private ChatLinkAccessibility ChatLinkAccessibility = ChatLinkAccessibility.Public;
+    private ChatLinkAction ChatLinkAction = ChatLinkAction.DeleteMessage;
 
     private bool ChatLinkAccessibilityPublic = false;
     private bool ChatLinkAccessibilityPrivate = false;

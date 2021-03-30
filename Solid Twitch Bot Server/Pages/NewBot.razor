@@ -7,32 +7,32 @@
 
 <h3>NewBot</h3>
 @*//TODO: margins*@
-<EditForm Model="MyBot" OnValidSubmit="@Submit">
+<EditForm Model="BotSetting" OnValidSubmit="@Submit">
     <div class="container-fluid">
         <div class="row">
             <div class="col-sm-2">
                 <label class="font-weight-bold">Channel</label>
-                <input class="form-control" @bind="MyBot.BotSetting.Channel">
+                <input class="form-control" @bind="BotSetting.Channel">
             </div>
             <div class="col-sm-2">
                 <label class="font-weight-bold">Twitch Username</label>
-                <input class="form-control" @bind="MyBot.BotSetting.TwitchUsername">
+                <input class="form-control" @bind="BotSetting.TwitchUsername">
             </div>
             <div class="col-sm-3">
                 <label class="font-weight-bold">Twitch Auth Token</label>
-                <input class="form-control" @bind="MyBot.BotSetting.TwitchOAuth">
+                <input class="form-control" @bind="BotSetting.TwitchOAuth">
             </div>
         </div>
         <br />
         <div class="row">
             <div class="col-sm-2">
                 <label class="font-weight-bold">Erlaubte Nachrichten im Zeitraum</label>
-                <input class="form-control" @bind="MyBot.BotSetting.MessagesAllowedInPeriod">
+                <input class="form-control" @bind="BotSetting.MessagesAllowedInPeriod">
                 <p class="float-right font-weight-bold">Stück</p>
             </div>
             <div class="col-sm-2">
                 <label class="font-weight-bold">Zeitraum</label>
-                <input class="form-control" @bind="MyBot.BotSetting.ThrottlingPeriod">
+                <input class="form-control" @bind="BotSetting.ThrottlingPeriod">
                 <p class="float-right font-weight-bold">Sekunden</p>
             </div>
         </div>
@@ -42,22 +42,22 @@
         <div class="row">
             <div class="col-sm-4">
                 <label class="font-weight-bold">Nachricht bei Sub</label>
-                <input class="form-control" placeholder="Danke für dein Sub!" @bind="MyBot.BotSetting.SubMessage">
+                <input class="form-control" placeholder="Danke für dein Sub!" @bind="BotSetting.SubMessage">
             </div>
             <div class="col-sm-4">
                 <label class="font-weight-bold">Nachricht bei @@Message</label>
-                <input class="form-control" placeholder="Mich gibt's gar nicht!" @bind="MyBot.BotSetting.ChatDMResponse">
+                <input class="form-control" placeholder="Mich gibt's gar nicht!" @bind="BotSetting.ChatDMResponse">
             </div>
         </div>
         <br />
         <div class="row">
             <div class="col-sm-4">
                 <label class="font-weight-bold">Nachricht bei Channel Beitritt</label>
-                <input class="form-control" placeholder="Hallo! Ich bin der Bot von diesem Channel!" @bind="MyBot.BotSetting.ChannelJoinMessage">
+                <input class="form-control" placeholder="Hallo! Ich bin der Bot von diesem Channel!" @bind="BotSetting.ChannelJoinMessage">
             </div>
             <div class="col-sm-4">
                 <label class="font-weight-bold">Nachricht bei Channel Verlassen</label>
-                <input class="form-control" placeholder="Bravo six, going dark!" @bind="MyBot.BotSetting.ChannelLeaveMessage">
+                <input class="form-control" placeholder="Bravo six, going dark!" @bind="BotSetting.ChannelLeaveMessage">
             </div>
         </div>
     </div>
@@ -77,18 +77,17 @@
 
 @code {
 
-    public TwitchClientExt MyBot { get; set; }
+    public BotSettingModel BotSetting { get; set; }
 
 
     protected override void OnInitialized()
-    {
-        MyBot = new TwitchClientExt();
-        MyBot.BotSetting = new BotSettingModel();
+    {       
+        BotSetting = new BotSettingModel();
     }
 
     private void Submit()
     {
-        BotService.CreateBot(MyBot.BotSetting);
+        BotService.CreateBot(BotSetting);
         BotService.SaveBotsSettings();
         NavigationManager.NavigateTo("/bots");
     }
