@@ -8,4 +8,8 @@
     <PackageReference Include="obs-websocket-dotnet" Version="4.8.1" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Logger\Logger.csproj" />
+  </ItemGroup>
+
 </Project>
