@@ -6,7 +6,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Bot_Manager
+namespace Shares
 {
     public static class Encryption
     {

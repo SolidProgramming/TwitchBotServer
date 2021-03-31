@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-using Bot_Manager.Model;
 using Newtonsoft.Json;
 using Logger;
 using Shares.Model;
@@ -16,6 +15,7 @@ using TwitchLib.Client.Events;
 using System.Threading.Tasks;
 using OBSWebsocketController;
 using System.Text.RegularExpressions;
+using Bot_Manager.Enum;
 
 namespace Bot_Manager
 {
@@ -25,9 +25,9 @@ namespace Bot_Manager
         private static OBSWebsocketControllerClient OBSController = new OBSWebsocketControllerClient();
 
         public static TwitchClientExt CreateBot(BotSettingModel botSetting)
-        {          
+        {
             var credentials = new ConnectionCredentials(botSetting.TwitchUsername, botSetting.TwitchOAuth);
-            
+
             if (string.IsNullOrEmpty(botSetting.Id))
             {
                 botSetting.Id = Guid.NewGuid().ToString();
@@ -35,7 +35,7 @@ namespace Bot_Manager
 
             var bot = new TwitchClientExt()
             {
-                BotSetting = botSetting                 
+                BotSetting = botSetting
             };
 
             bot.OnJoinedChannel += TwitchClient_OnJoinedChannel;
@@ -47,14 +47,14 @@ namespace Bot_Manager
 
             Bots.Add(bot);
 
-            Setting.SaveBotsCredentials(Bots);
+            Setting.SaveBotsSettings(Bots);
 
             return bot;
         }
         public static TwitchClientExt CreateBot(TwitchClientExt bot)
-        {           
+        {
             var credentials = new ConnectionCredentials(bot.BotSetting.TwitchUsername, bot.BotSetting.TwitchOAuth);
-                      
+
             bot = new TwitchClientExt();
 
             bot.OnJoinedChannel += TwitchClient_OnJoinedChannel;
@@ -66,7 +66,7 @@ namespace Bot_Manager
 
             Bots.Add(bot);
 
-            Setting.SaveBotsCredentials(Bots);
+            Setting.SaveBotsSettings(Bots);
 
             return bot;
         }
@@ -89,7 +89,7 @@ namespace Bot_Manager
         }
         public static void SaveBotsSettings(List<TwitchClientExt> bots)
         {
-            Setting.SaveBotsCredentials(bots);
+            Setting.SaveBotsSettings(bots);
         }
         public static void SetBotSettings(string id, BotSettingModel botSetting)
         {
@@ -97,9 +97,10 @@ namespace Bot_Manager
 
             bot.BotSetting = botSetting;
         }
+
         public static List<TwitchClientExt> ReadBotSettings()
         {
-            var tempSettings = Setting.ReadBotClientCredentials();
+            List<BotSettingModel> tempSettings = Setting.ReadBotSettings();
 
             Bots.Clear();
 
@@ -117,7 +118,7 @@ namespace Bot_Manager
         {
             //TODO: without task.delay
             var bot = Bots.SingleOrDefault(_ => _.BotSetting.Id == botId);
-                        
+
             bot.Status = BotClientStatusModel.AwaitingConnection;
 
             await Task.Delay(1);
@@ -163,7 +164,7 @@ namespace Bot_Manager
             }
 
             Bots.Remove(bot);
-            Setting.SaveBotsCredentials(Bots);
+            Setting.SaveBotsSettings(Bots);
         }
         private static void TwitchClient_OnMessageReceived(object sender, OnMessageReceivedArgs e)
         {
@@ -184,7 +185,7 @@ namespace Bot_Manager
             bot.SendMessage(e.Channel, bot.BotSetting.ChannelJoinMessage);
         }
         private static void HandleTwitchMessage(ref TwitchClientExt twitchClient, OnMessageReceivedArgs e)
-        {           
+        {
             if (IsValidUrl(e.ChatMessage.Message))
             {
                 if (twitchClient.BotSetting.ChatLinkAccessibility == ChatLinkAccessibility.Private)
@@ -194,14 +195,15 @@ namespace Bot_Manager
                         if (twitchClient.BotSetting.ChatLinkAction == ChatLinkAction.DeleteMessage)
                         {
                             TimeoutUser(ref twitchClient, twitchClient.BotSetting.Channel, e.ChatMessage.Username, 1);
-                        }else if(twitchClient.BotSetting.ChatLinkAction == ChatLinkAction.BanUser)
+                        }
+                        else if (twitchClient.BotSetting.ChatLinkAction == ChatLinkAction.BanUser)
                         {
                             TimeoutUser(ref twitchClient, twitchClient.BotSetting.Channel, e.ChatMessage.Username, (int)TimeSpan.FromMinutes(15).TotalSeconds);
-                        }                        
+                        }
                     }
                 }
             }
-        }        
+        }
         private static void HandleCommand(Shares.Enum.ChatCommand chatCommand, ref TwitchClientExt twitchClient, OnMessageReceivedArgs e)
         {
             //switch (chatCommand)

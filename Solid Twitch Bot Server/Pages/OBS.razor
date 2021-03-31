@@ -1,15 +1,55 @@
-﻿@page "/OBS"
+﻿@page "/obs"
+@using Shares.Model;
+@using Services;
+@inject IOBSService OBSService;
+@inject NavigationManager NavigationManager;
 
 <h3>OBS Einstellungen</h3>
 <br />
 <h5>Hier kannst du deine OBS Einstellungen ändern</h5>
 <hr />
-<div>
+<EditForm Model="OBSSetting" OnValidSubmit="@Submit">
     <div class="container-fluid">
+        <div class="row">
+            <form>
+                <div class="form-group">
+                    <label class="font-weight-bold">OBS Websocket URL(Default: 4444)</label>
+                    <input class="form-control" placeholder="4444" @bind="OBSSetting.WebSocketPort">
+                </div>
+                <div class="form-group">
+                    <label class="font-weight-bold">OBS Websocket Passwort</label>
+                    <input class="form-control" type="password" @bind="OBSSetting.WebSocketPassword">
 
+                </div>
+            </form>
+        </div>
     </div>
-</div>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-sm">
+                <input type="submit" class="form-control btn btn-primary" value="Speichern" />
+            </div>            
+        </div>
+    </div>
+    <br />
+</EditForm>
 
 @code {
+    public OBSSettingModel OBSSetting { get; set; }
+
+    protected override void OnInitialized()
+    {
+        OBSSetting = OBSService.ReadOBSSettings();
+
+        if (OBSSetting == null)
+        {
+            OBSSetting = new();
+        }
+    }
+
+    private void Submit()
+    {
+        OBSService.SaveOBSSettings(OBSSetting);        
+    }
 
 }

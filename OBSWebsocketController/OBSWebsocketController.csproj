@@ -10,6 +10,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Logger\Logger.csproj" />
+    <ProjectReference Include="..\Shares\Shares.csproj" />
   </ItemGroup>
 
 </Project>
