@@ -16,6 +16,7 @@ using System.Threading.Tasks;
 using OBSWebsocketController;
 using System.Text.RegularExpressions;
 using Bot_Manager.Enum;
+using TwitchLib.Api.Core.Models.Undocumented.ChatUser;
 
 namespace Bot_Manager
 {
@@ -97,7 +98,6 @@ namespace Bot_Manager
 
             bot.BotSetting = botSetting;
         }
-
         public static List<TwitchClientExt> ReadBotSettings()
         {
             List<BotSettingModel> tempSettings = Setting.ReadBotSettings();
@@ -203,6 +203,14 @@ namespace Bot_Manager
                     }
                 }
             }
+
+            if (e.ChatMessage.Message.StartsWith("!so"))
+            {
+                string channel = e.ChatMessage.Message.Substring(e.ChatMessage.Message.IndexOf(' ') + 1).Replace("@", string.Empty);
+
+                twitchClient.SendMessage(twitchClient.BotSetting.Channel, $"Hey, guck auch mal bei twitch.tv/{channel} vorbei! Danke :)");                
+            }
+
         }
         private static void HandleCommand(Shares.Enum.ChatCommand chatCommand, ref TwitchClientExt twitchClient, OnMessageReceivedArgs e)
         {
@@ -238,5 +246,10 @@ namespace Bot_Manager
         {
             twitchClient.SendMessage(channel, $".timeout {username} {duration} {reason}");
         }
+        private static ChatUser CheckIfUserIsInChannel(string username)
+        {
+           ChatUser chatUser = chat
+        }
+
     }
 }
