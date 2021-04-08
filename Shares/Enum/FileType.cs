@@ -6,10 +6,10 @@ using System.Threading.Tasks;
 
 namespace Shares.Enum
 {
-    public enum ChatCommand
+    public enum FileType
     {
-        None,
-        StartStream,
-        Test1
+        BotSettings,
+        OBSSettings,
+        ChatCommands
     }
 }

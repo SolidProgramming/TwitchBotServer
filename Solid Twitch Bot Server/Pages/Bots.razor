@@ -30,21 +30,21 @@ else
         @foreach (var bot in MyBots)
         {
             <tr>
-                <td><a href="@string.Format("/bots/{0}", bot.BotSetting.Id)">@bot.BotSetting.TwitchUsername</a></td>
-                <td>@bot.BotSetting.Id</td>
-                <td>@bot.BotSetting.Channel</td>
+                <td><a href="@string.Format("/bots/{0}", bot.Id)">@bot.Settings.TwitchUsername</a></td>
+                <td>@bot.Id</td>
+                <td>@bot.Settings.Channel</td>
                 <td>
                     @switch (bot.Status)
                     {
                         case BotClientStatusModel.Stopped:
-                            <button class="btn btn-primary" type="button" @onclick="@(e => StartBot(@bot.BotSetting.Id))">
+                            <button class="btn btn-primary" type="button" @onclick="@(e => StartBot(@bot.Id))">
                                 <span role="status" aria-hidden="true">
                                     Start
                                 </span>
                             </button>
                             break;
                         case BotClientStatusModel.Started:
-                            <button class="btn btn-primary" type="button" @onclick="@(e => StopBot(@bot.BotSetting.Id))">
+                            <button class="btn btn-primary" type="button" @onclick="@(e => StopBot(@bot.Id))">
                                 <span role="status" aria-hidden="true">
                                     Stop
                                 </span>
@@ -69,7 +69,7 @@ else
                     }
 
                 </td>
-                <td><input type="button" class="btn btn-secondary" @onclick="@(e => DeleteBot(@bot.BotSetting.Id))" value="Delete" /></td>
+                <td><input type="button" class="btn btn-secondary" @onclick="@(e => DeleteBot(@bot.Id))" value="Delete" /></td>
             </tr>
 
         }
@@ -84,7 +84,7 @@ else
 
 @code {
     //TODO: delete bots
-    public List<TwitchClientExt> MyBots { get; set; }
+    public List<TwitchBotModel> MyBots { get; set; }
 
     //TODO: needs singleton
     protected override async Task OnInitializedAsync()
@@ -99,7 +99,7 @@ else
 
         if (MyBots == null)
         {
-            MyBots = new List<TwitchClientExt>();
+            MyBots = new List<TwitchBotModel>();
             return;
         }
     }

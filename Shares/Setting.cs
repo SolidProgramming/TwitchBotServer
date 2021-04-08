@@ -7,85 +7,72 @@ using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Serialization;
 using Shares.Model;
+using Shares.Enum;
 
 namespace Shares
-{   
+{
 
     public static class Setting
     {
-        static readonly string savePathDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "SolidProgramming", "Twitch Bot Server");
-        static readonly string BotSettingsFilePath = Path.Combine(savePathDirectory, "BotSettings");
-        static readonly string OBSSettingsFilePath = Path.Combine(savePathDirectory, "OBSSettings");
+        private static readonly string savePathDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "SolidProgramming", "Twitch Bot Server");
+        private static readonly string BotSettingsFilePath = Path.Combine(savePathDirectory, "BotSettings");
+        private static readonly string OBSSettingsFilePath = Path.Combine(savePathDirectory, "OBSSettings");
+        private static readonly string ChatCommandsFilePath = Path.Combine(savePathDirectory, "ChatCommands");
 
-        public static void SaveBotsSettings(List<TwitchClientExt> bots)
+        private static Dictionary<FileType, string> FilesPath = new()
+        {
+            { FileType.BotSettings, BotSettingsFilePath },
+            { FileType.OBSSettings, OBSSettingsFilePath },
+            { FileType.ChatCommands, ChatCommandsFilePath }
+        };
+        public static T LoadSettings<T>(FileType fileType)
         {
             CheckDirectoryExists();
 
-            var botsSettings = bots.Select(_ => _.BotSetting).ToList();
+            string filePath = FilesPath[fileType];
 
-            var xmlserializer = new XmlSerializer(typeof(List<BotSettingModel>));
-            var stringWriter = new StringWriter();
+            if (!File.Exists(filePath)) return default;
 
-            using (var writer = XmlWriter.Create(stringWriter))
-            {                
-                xmlserializer.Serialize(writer, botsSettings);
-
-                var data = Encryption.Encrypt(stringWriter.ToString());
-
-                File.WriteAllText(BotSettingsFilePath, data);
-            }
-        }
-
-        public static List<BotSettingModel> ReadBotSettings()
-        {
-            CheckDirectoryExists();
-
-            if (!File.Exists(BotSettingsFilePath)) return null;
-
-            string xmlData = Encryption.Decrypt(File.ReadAllText(BotSettingsFilePath));
-
-            XmlSerializer serializer = new(typeof(List<BotSettingModel>));
-            StringReader rdr = new(xmlData);
-
-            return (List<BotSettingModel>)serializer.Deserialize(rdr);
-        }
-
-        public static void SaveOBSSettings(OBSSettingModel obsSettings)
-        {
-            CheckDirectoryExists();
-
-            var xmlserializer = new XmlSerializer(typeof(OBSSettingModel));
-            var stringWriter = new StringWriter();
-
-            using (var writer = XmlWriter.Create(stringWriter))
+            try
             {
-                xmlserializer.Serialize(writer, obsSettings);
+                string xmlData = Encryption.Decrypt(File.ReadAllText(filePath));
 
-                var data = Encryption.Encrypt(stringWriter.ToString());
+                var serializer = new XmlSerializer(typeof(T));
+                var rdr = new StringReader(xmlData);
 
-                File.WriteAllText(OBSSettingsFilePath, data);
+                return (T)Convert.ChangeType(serializer.Deserialize(rdr), typeof(T), System.Globalization.CultureInfo.InvariantCulture);
             }
-
+            catch (Exception)
+            {
+                return default;
+            }
         }
-        public static OBSSettingModel ReadOBSSettings()
+        public static void SaveSettings(dynamic settings, FileType fileType)
         {
             CheckDirectoryExists();
 
-            if (!File.Exists(OBSSettingsFilePath)) return null;
+            string filePath = FilesPath[fileType];
 
-            string xmlData = Encryption.Decrypt(File.ReadAllText(OBSSettingsFilePath));
+            try
+            {
+                XmlSerializer xmlserializer = new(settings.GetType());
+                StringWriter stringWriter = new();
 
-            XmlSerializer serializer = new(typeof(OBSSettingModel));
-            StringReader rdr = new(xmlData);
+                using var writer = XmlWriter.Create(stringWriter);
 
-            return (OBSSettingModel)serializer.Deserialize(rdr);
+                xmlserializer.Serialize(writer, settings);
+
+                string data = Encryption.Encrypt(stringWriter.ToString());
+
+                File.WriteAllText(filePath, data);
+            }
+            catch (Exception) { }
         }
         private static void CheckDirectoryExists()
         {
-            if (!Directory.Exists(savePathDirectory))
-            {
-                Directory.CreateDirectory(savePathDirectory);
-            }
+            if (!Directory.Exists(savePathDirectory)) Directory.CreateDirectory(savePathDirectory);
         }
+
+
     }
 }

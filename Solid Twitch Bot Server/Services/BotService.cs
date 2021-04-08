@@ -9,23 +9,23 @@ namespace Solid_Twitch_Bot_Server.Services
 {
     public class BotService : IBotService
     {
-        public TwitchClientExt CreateBot(TwitchClientExt botClient)
-        {
-            return BotManager.CreateBot(botClient);
-        }
-        public TwitchClientExt CreateBot(BotSettingModel botSetting)
+        //public TwitchClientExt CreateBot(TwitchClientExt botClient)
+        //{
+        //    return BotManager.CreateBot(botClient);
+        //}
+        public TwitchBotModel CreateBot(BotSettingModel botSetting)
         {
             return BotManager.CreateBot(botSetting);
         }
-        public TwitchClientExt GetBot(string botId)
+        public TwitchBotModel GetBot(string botId)
         {
             return BotManager.GetBot(botId);
         }
-        public List<TwitchClientExt> GetBots()
+        public List<TwitchBotModel> GetBots()
         {
             return BotManager.GetBots(); 
         }
-        public List<TwitchClientExt> ReadBotsSettings()
+        public List<TwitchBotModel> ReadBotsSettings()
         {
             return BotManager.ReadBotSettings();
         }

@@ -25,22 +25,28 @@
                     <label class="font-weight-bold">Twitch Auth Token</label>
                     <input class="form-control" @bind-value="@BotSetting.TwitchOAuth">
                 </div>
-            </div>
-            <br />
-            <div class="row">
-                <div class="col-sm-2">
-                    <label class="font-weight-bold">Erlaubte Nachrichten im Zeitraum</label>
-                    <input class="form-control" @bind-value="@BotSetting.MessagesAllowedInPeriod">
-                    <p class="float-right font-weight-bold">Stück</p>
-                </div>
-                <div class="col-sm-2">
-                    <label class="font-weight-bold">Zeitraum</label>
-                    <input class="form-control" @bind-value="@BotSetting.ThrottlingPeriod">
-                    <p class="float-right font-weight-bold">Sekunden</p>
+                <div class="col-sm-4">
+                    <label class="font-weight-bold">Twitch Client Id(dev.twitch.tv/console/apps)</label>
+                    <input class="form-control" @bind-value="@BotSetting.TwitchClientId">
                 </div>
             </div>
-            <hr />
+            @*<br />
+                <div class="row">
+                    <div class="col-sm-2">
+                        <label class="font-weight-bold">Erlaubte Nachrichten im Zeitraum</label>
+                        <input class="form-control" @bind-value="@BotSetting.MessagesAllowedInPeriod">
+                        <p class="float-right font-weight-bold">Stück</p>
+                    </div>
+                    <div class="col-sm-2">
+                        <label class="font-weight-bold">Zeitraum</label>
+                        <input class="form-control" @bind-value="@BotSetting.ThrottlingPeriod">
+                        <p class="float-right font-weight-bold">Sekunden</p>
+                    </div>
+                </div>
+                <hr />
+            </div> *@
         </div>
+        <hr />
         <div class="container-fluid">
             <div class="row">
                 <div class="col-sm-4">
@@ -82,7 +88,7 @@
                         </label>
                     </div>
                 </div>
-                <div class="col-sm-2">                    
+                <div class="col-sm-2">
                     <label class="font-weight-bold">Handlung beim unautorisierten Posten von Links</label>
                     <div class="form-check">
                         <input class="form-check-input" type="radio" name="ActionRadioGroup" id="ActionRadio1" checked="@(ChatLinkAction == ChatLinkAction.DeleteMessage)">
@@ -122,7 +128,7 @@
                                     <label class="form-check-label" for="@RadioPublicId">
                                         Öffentlich
                                     </label>
-                                    <input class="form-check-input" type="radio" id="@RadioPrivateId" name="@RadioGroupName" @onchange="@(e => OnChatCommandAccessibilityChanged(textcommand, ChatCommandAccessibility.Private))">
+                                    <input class="form-check-input ml-3" type="radio" id="@RadioPrivateId" name="@RadioGroupName" @onchange="@(e => OnChatCommandAccessibilityChanged(textcommand, ChatCommandAccessibility.Private))">
                                     <label class="form-check-label" for="@RadioPrivateId">
                                         Privat/Mods
                                     </label>

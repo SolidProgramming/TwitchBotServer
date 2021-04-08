@@ -8,13 +8,12 @@ namespace Solid_Twitch_Bot_Server.Services
 {
     public interface IBotService
     {
-        List<TwitchClientExt> GetBots();
-        TwitchClientExt GetBot(string id);
+        List<TwitchBotModel> GetBots();
+        TwitchBotModel GetBot(string id);
         void SaveBotsSettings();
         void SetBotSettings(string id, BotSettingModel botSetting);
-        List<TwitchClientExt> ReadBotsSettings();
-        TwitchClientExt CreateBot(TwitchClientExt botClient);
-        TwitchClientExt CreateBot(BotSettingModel botSetting);
+        List<TwitchBotModel> ReadBotsSettings();
+        TwitchBotModel CreateBot(BotSettingModel botSetting);
         Task StartBot(string botId);
         Task StopBot(string botId);
         Task DeleteBot(string botId);

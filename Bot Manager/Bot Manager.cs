@@ -15,92 +15,100 @@ using TwitchLib.Client.Events;
 using System.Threading.Tasks;
 using OBSWebsocketController;
 using System.Text.RegularExpressions;
-using Bot_Manager.Enum;
-using TwitchLib.Api.Core.Models.Undocumented.ChatUser;
+using Shares.Enum;
 
 namespace Bot_Manager
 {
     public static class BotManager
     {
-        private static List<TwitchClientExt> Bots = new List<TwitchClientExt>();
-        private static OBSWebsocketControllerClient OBSController = new OBSWebsocketControllerClient();
+        private static List<TwitchBotModel> Bots = new();
+        private static OBSWebsocketControllerClient OBSController = new();
 
-        public static TwitchClientExt CreateBot(BotSettingModel botSetting)
+        public static TwitchBotModel CreateBot(BotSettingModel botSetting)
         {
             var credentials = new ConnectionCredentials(botSetting.TwitchUsername, botSetting.TwitchOAuth);
 
-            if (string.IsNullOrEmpty(botSetting.Id))
+            var bot = new TwitchBotModel()
             {
-                botSetting.Id = Guid.NewGuid().ToString();
-            }
-
-            var bot = new TwitchClientExt()
-            {
-                BotSetting = botSetting
+                TwitchClient = new(),
+                TwitchAPI = new(),
+                Settings = botSetting
             };
 
-            bot.OnJoinedChannel += TwitchClient_OnJoinedChannel;
-            bot.OnConnected += TwitchClient_OnConnected;
-            bot.OnConnectionError += TwitchClient_OnConnectionError;
-            bot.OnMessageReceived += TwitchClient_OnMessageReceived;
+            bot.Id = Guid.NewGuid().ToString();
 
-            bot.Initialize(credentials, botSetting.Channel);
+            bot.TwitchClient.OnJoinedChannel += TwitchClient_OnJoinedChannel;
+            bot.TwitchClient.OnConnected += TwitchClient_OnConnected;
+            bot.TwitchClient.OnConnectionError += TwitchClient_OnConnectionError;
+            bot.TwitchClient.OnMessageReceived += TwitchClient_OnMessageReceived;
 
-            Bots.Add(bot);
+            bot.TwitchClient.Initialize(credentials, botSetting.Channel);
 
-            Setting.SaveBotsSettings(Bots);
-
-            return bot;
-        }
-        public static TwitchClientExt CreateBot(TwitchClientExt bot)
-        {
-            var credentials = new ConnectionCredentials(bot.BotSetting.TwitchUsername, bot.BotSetting.TwitchOAuth);
-
-            bot = new TwitchClientExt();
-
-            bot.OnJoinedChannel += TwitchClient_OnJoinedChannel;
-            bot.OnConnected += TwitchClient_OnConnected;
-            bot.OnConnectionError += TwitchClient_OnConnectionError;
-            bot.OnMessageReceived += TwitchClient_OnMessageReceived;
-
-            bot.Initialize(credentials, bot.BotSetting.Channel);
+            bot.TwitchAPI.Settings.AccessToken = bot.Settings.TwitchOAuth;
+            bot.TwitchAPI.Settings.ClientId = bot.Settings.TwitchClientId;
 
             Bots.Add(bot);
 
-            Setting.SaveBotsSettings(Bots);
+            Setting.SaveSettings(Bots.Select(_ => _.Settings).ToList(), FileType.BotSettings);
 
             return bot;
         }
-        public static TwitchClientExt GetBot(string id)
+        public static TwitchBotModel CreateBot(TwitchBotModel bot)
         {
-            return Bots.SingleOrDefault(_ => _.BotSetting.Id == id);
+            var credentials = new ConnectionCredentials(bot.Settings.TwitchUsername, bot.Settings.TwitchOAuth);
+
+            bot = new TwitchBotModel
+            {
+                TwitchClient = new(),
+                TwitchAPI = new()
+            };
+
+            bot.TwitchClient.OnJoinedChannel += TwitchClient_OnJoinedChannel;
+            bot.TwitchClient.OnConnected += TwitchClient_OnConnected;
+            bot.TwitchClient.OnConnectionError += TwitchClient_OnConnectionError;
+            bot.TwitchClient.OnMessageReceived += TwitchClient_OnMessageReceived;
+
+            bot.TwitchClient.Initialize(credentials, bot.Settings.Channel);
+
+            Bots.Add(bot);
+
+            Setting.SaveSettings(Bots.Select(_ => _.Settings).ToList(), FileType.BotSettings);
+
+            return bot;
+        }
+        public static TwitchBotModel GetBot(string id)
+        {
+            return Bots.SingleOrDefault(_ => _.Id == id);
         }
         public static BotSettingModel GetBotSettings(string botId)
         {
-            return Bots.SingleOrDefault(_ => _.BotSetting.Id == botId).BotSetting;
+            return Bots.SingleOrDefault(_ => _.Id == botId).Settings;
         }
-        public static List<TwitchClientExt> GetBots()
+        public static List<TwitchBotModel> GetBots()
         {
-            if (Bots.Count() == 0)
+            if (Bots.Count == 0)
             {
                 return ReadBotSettings();
             }
 
             return Bots;
         }
-        public static void SaveBotsSettings(List<TwitchClientExt> bots)
+        public static void SaveBotsSettings(List<TwitchBotModel> bots)
         {
-            Setting.SaveBotsSettings(bots);
+            //Setting.SaveBotsSettings(bots);
+            Setting.SaveSettings(bots.Select(_ => _.Settings).ToList(), Shares.Enum.FileType.BotSettings);
         }
         public static void SetBotSettings(string id, BotSettingModel botSetting)
         {
-            var bot = Bots.SingleOrDefault(_ => _.BotSetting.Id == id);
+            var bot = Bots.SingleOrDefault(_ => _.Id == id);
 
-            bot.BotSetting = botSetting;
+            bot.Settings = botSetting;
         }
-        public static List<TwitchClientExt> ReadBotSettings()
+        public static List<TwitchBotModel> ReadBotSettings()
         {
-            List<BotSettingModel> tempSettings = Setting.ReadBotSettings();
+            //List<BotSettingModel> tempSettings = Setting.ReadBotSettings();
+
+            List<BotSettingModel> tempSettings = Setting.LoadSettings<List<BotSettingModel>>(Shares.Enum.FileType.BotSettings);
 
             Bots.Clear();
 
@@ -117,37 +125,32 @@ namespace Bot_Manager
         public static async Task StartBot(string botId)
         {
             //TODO: without task.delay
-            var bot = Bots.SingleOrDefault(_ => _.BotSetting.Id == botId);
+            var bot = Bots.SingleOrDefault(_ => _.Id == botId);
 
             bot.Status = BotClientStatusModel.AwaitingConnection;
 
             await Task.Delay(1);
 
-            bot.Connect();
+            bot.TwitchClient.Connect();
 
-            if (bot.JoinedChannels.Count() == 0 && bot.FirstStartDone)
-            {
-                bot.JoinChannel(bot.BotSetting.Channel);
-            }
-            bot.FirstStartDone = true;
             bot.Status = BotClientStatusModel.Started;
         }
         public static async Task StopBot(string botId)
         {
             //TODO: without task.delay
-            var bot = Bots.Single(_ => _.BotSetting.Id == botId);
+            var bot = Bots.Single(_ => _.Id == botId);
 
-            if (!bot.IsConnected || bot.JoinedChannels.Count == 0)
+            if (!bot.TwitchClient.IsConnected || bot.TwitchClient.JoinedChannels.Count == 0)
             {
                 bot.Status = BotClientStatusModel.Stopped;
                 return;
             }
 
-            bot.SendMessage(bot.BotSetting.Channel, bot.BotSetting.ChannelLeaveMessage);
+            bot.TwitchClient.SendMessage(bot.Settings.Channel, bot.Settings.ChannelLeaveMessage);
             bot.Status = BotClientStatusModel.AwaitingDisconnect;
             await Task.Delay(1);
-            bot.LeaveChannel(bot.BotSetting.Channel);
-            bot.Disconnect();
+            bot.TwitchClient.LeaveChannel(bot.Settings.Channel);
+            bot.TwitchClient.Disconnect();
             //bot.OnJoinedChannel -= TwitchClient_OnJoinedChannel;
             //bot.OnConnected -= TwitchClient_OnConnected;
             //bot.OnConnectionError -= TwitchClient_OnConnectionError;
@@ -156,7 +159,7 @@ namespace Bot_Manager
         }
         public static async Task DeleteBot(string botId)
         {
-            var bot = Bots.Single(_ => _.BotSetting.Id == botId);
+            var bot = Bots.Single(_ => _.Id == botId);
 
             if (bot.Status != BotClientStatusModel.Stopped)
             {
@@ -164,12 +167,11 @@ namespace Bot_Manager
             }
 
             Bots.Remove(bot);
-            Setting.SaveBotsSettings(Bots);
+            Setting.SaveSettings(Bots.Select(_ => _.Settings).ToList(), FileType.BotSettings);
         }
         private static void TwitchClient_OnMessageReceived(object sender, OnMessageReceivedArgs e)
         {
-            var twitchClient = (TwitchClientExt)sender;
-            HandleTwitchMessage(ref twitchClient, e);
+            HandleTwitchMessageAsync((TwitchClient)sender, e).ConfigureAwait(true);
         }
         private static void TwitchClient_OnConnectionError(object sender, OnConnectionErrorArgs e)
         {
@@ -177,28 +179,30 @@ namespace Bot_Manager
         }
         private static void TwitchClient_OnConnected(object sender, OnConnectedArgs e)
         {
-            Console.WriteLine("connected to channel: " + e.AutoJoinChannel);
+
         }
         private static void TwitchClient_OnJoinedChannel(object sender, OnJoinedChannelArgs e)
         {
-            var bot = (TwitchClientExt)sender;
-            bot.SendMessage(e.Channel, bot.BotSetting.ChannelJoinMessage);
+            var bot = Bots.SingleOrDefault(_ => _.TwitchClient == (TwitchClient)sender);
+            bot.TwitchClient.SendMessage(e.Channel, bot.Settings.ChannelJoinMessage);
         }
-        private static void HandleTwitchMessage(ref TwitchClientExt twitchClient, OnMessageReceivedArgs e)
+        private static async Task HandleTwitchMessageAsync(TwitchClient twitchClient, OnMessageReceivedArgs e)
         {
+            var bot = Bots.SingleOrDefault(_ => _.TwitchClient == twitchClient);
+
             if (IsValidUrl(e.ChatMessage.Message))
             {
-                if (twitchClient.BotSetting.ChatLinkAccessibility == ChatLinkAccessibility.Private)
+                if (bot.Settings.ChatLinkAccessibility == ChatLinkAccessibility.Private)
                 {
                     if (!e.ChatMessage.IsVip && !e.ChatMessage.IsModerator && !e.ChatMessage.IsMe && !e.ChatMessage.IsBroadcaster && !e.ChatMessage.IsStaff)
                     {
-                        if (twitchClient.BotSetting.ChatLinkAction == ChatLinkAction.DeleteMessage)
+                        if (bot.Settings.ChatLinkAction == ChatLinkAction.DeleteMessage)
                         {
-                            TimeoutUser(ref twitchClient, twitchClient.BotSetting.Channel, e.ChatMessage.Username, 1);
+                            TimeoutUser(ref twitchClient, bot.Settings.Channel, e.ChatMessage.Username, 1);
                         }
-                        else if (twitchClient.BotSetting.ChatLinkAction == ChatLinkAction.BanUser)
+                        else if (bot.Settings.ChatLinkAction == ChatLinkAction.BanUser)
                         {
-                            TimeoutUser(ref twitchClient, twitchClient.BotSetting.Channel, e.ChatMessage.Username, (int)TimeSpan.FromMinutes(15).TotalSeconds);
+                            TimeoutUser(ref twitchClient, bot.Settings.Channel, e.ChatMessage.Username, (int)TimeSpan.FromMinutes(15).TotalSeconds);
                         }
                     }
                 }
@@ -206,13 +210,19 @@ namespace Bot_Manager
 
             if (e.ChatMessage.Message.StartsWith("!so"))
             {
-                string channel = e.ChatMessage.Message.Substring(e.ChatMessage.Message.IndexOf(' ') + 1).Replace("@", string.Empty);
-
-                twitchClient.SendMessage(twitchClient.BotSetting.Channel, $"Hey, guck auch mal bei twitch.tv/{channel} vorbei! Danke :)");                
+                string username = e.ChatMessage.Message.Substring(e.ChatMessage.Message.IndexOf(' ') + 1).Replace("@", string.Empty);
+                if (await TwitchUserExists(bot, username))
+                {
+                    bot.TwitchClient.SendMessage(e.ChatMessage.Channel, $"Hey, check auch www.twitch.tv/{username} aus!");
+                }
+                else
+                {
+                    bot.TwitchClient.SendReply(e.ChatMessage.Channel, e.ChatMessage.UserId, "Dieser Benutzer existiert nicht.");
+                }
             }
 
         }
-        private static void HandleCommand(Shares.Enum.ChatCommand chatCommand, ref TwitchClientExt twitchClient, OnMessageReceivedArgs e)
+        private static void HandleCommand(Shares.Enum.ChatCommand chatCommand, ref TwitchClient twitchClient, OnMessageReceivedArgs e)
         {
             //switch (chatCommand)
             //{
@@ -236,20 +246,18 @@ namespace Bot_Manager
         {
             OBSController.SwitchToScene(sceneName);
         }
-        public static void GetChatCommands(string botId)
-        {
-            var botSetting = Bots.SingleOrDefault(_ => _.BotSetting.Id == botId).BotSetting;
-
-
-        }
-        private static void TimeoutUser(ref TwitchClientExt twitchClient, string channel, string username, int duration, string reason = "")
+        private static void TimeoutUser(ref TwitchClient twitchClient, string channel, string username, int duration, string reason = "")
         {
             twitchClient.SendMessage(channel, $".timeout {username} {duration} {reason}");
         }
-        private static ChatUser CheckIfUserIsInChannel(string username)
+        private static async Task<bool> TwitchUserExists(TwitchBotModel twitchBot, string username)
         {
-           ChatUser chatUser = chat
-        }
+            var user = await twitchBot.TwitchAPI.V5.Users.GetUserByNameAsync(username).ConfigureAwait(true);
 
+            if (user.Total > 0)
+                return true;
+
+            return false;
+        }
     }
 }

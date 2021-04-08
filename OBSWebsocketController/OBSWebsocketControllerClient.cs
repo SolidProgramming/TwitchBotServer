@@ -22,7 +22,7 @@ namespace OBSWebsocketController
             OBSWebsocket.SceneChanged += OBSWebsocket_SceneChanged;
             OBSWebsocket.Heartbeat += OBSWebsocket_Heartbeat;
 
-            obsSettings = Setting.ReadOBSSettings();
+            obsSettings = Setting.LoadSettings<OBSSettingModel>(FileType.OBSSettings);
 
             if (obsSettings == null) return;
 

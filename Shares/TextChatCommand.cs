@@ -10,10 +10,7 @@ namespace Shares
 {
     public static class TextChatCommand
     {
-        private static Dictionary <string, ChatCommand> dictChatCommands = new Dictionary<string, ChatCommand>()
-        {
-            { "!roulette", ChatCommand.Roulette }
-        };
+        private static Dictionary <string, ChatCommand> dictChatCommands = new();
 
         public static List<string> GetTextChatCommands()
         {
