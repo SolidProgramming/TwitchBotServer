@@ -49,7 +49,7 @@ namespace Bot_Manager
 
             Bots.Add(bot);
 
-            Setting.SaveSettings(Bots.Select(_ => _.Settings).ToList(), FileType.BotSettings);
+            Settings.SaveSettings(Bots.Select(_ => _.Settings).ToList(), FileType.BotSettings);
 
             return bot;
         }
@@ -72,7 +72,7 @@ namespace Bot_Manager
 
             Bots.Add(bot);
 
-            Setting.SaveSettings(Bots.Select(_ => _.Settings).ToList(), FileType.BotSettings);
+            Settings.SaveSettings(Bots.Select(_ => _.Settings).ToList(), FileType.BotSettings);
 
             return bot;
         }
@@ -96,7 +96,7 @@ namespace Bot_Manager
         public static void SaveBotsSettings(List<TwitchBotModel> bots)
         {
             //Setting.SaveBotsSettings(bots);
-            Setting.SaveSettings(bots.Select(_ => _.Settings).ToList(), Shares.Enum.FileType.BotSettings);
+            Settings.SaveSettings(bots.Select(_ => _.Settings).ToList(), Shares.Enum.FileType.BotSettings);
         }
         public static void SetBotSettings(string id, BotSettingModel botSetting)
         {
@@ -108,7 +108,7 @@ namespace Bot_Manager
         {
             //List<BotSettingModel> tempSettings = Setting.ReadBotSettings();
 
-            List<BotSettingModel> tempSettings = Setting.LoadSettings<List<BotSettingModel>>(Shares.Enum.FileType.BotSettings);
+            List<BotSettingModel> tempSettings = Settings.LoadSettings<List<BotSettingModel>>(Shares.Enum.FileType.BotSettings);
 
             Bots.Clear();
 
@@ -167,7 +167,7 @@ namespace Bot_Manager
             }
 
             Bots.Remove(bot);
-            Setting.SaveSettings(Bots.Select(_ => _.Settings).ToList(), FileType.BotSettings);
+            Settings.SaveSettings(Bots.Select(_ => _.Settings).ToList(), FileType.BotSettings);
         }
         private static void TwitchClient_OnMessageReceived(object sender, OnMessageReceivedArgs e)
         {

@@ -20,14 +20,12 @@ namespace Logger
              .CreateLogger();
 
         }
-
-        public static void LogInfo(string infoText, string moduleName)
+        public static void Info(string infoText, string moduleName)
         {
             Serilog.Log.Information(infoText);
             Console.WriteLine($"[INFO|{moduleName}] {infoText}");
         }
-
-        public static void LogFatal(string errorText, string moduleName)
+        public static void Fatal(string errorText, string moduleName)
         {
             Serilog.Log.Fatal($"[{moduleName}] {errorText}");
             Console.WriteLine($"[FATAL|{moduleName}] {errorText}");

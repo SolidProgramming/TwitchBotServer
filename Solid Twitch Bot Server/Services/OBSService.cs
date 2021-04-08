@@ -12,12 +12,12 @@ namespace Solid_Twitch_Bot_Server.Services
     {
         public OBSSettingModel ReadOBSSettings()
         {
-            return Setting.LoadSettings<OBSSettingModel>(FileType.OBSSettings);
+            return Settings.LoadSettings<OBSSettingModel>(FileType.OBSSettings);
         }
 
         public void SaveOBSSettings(OBSSettingModel obsSettings)
         {
-            Setting.SaveSettings(obsSettings, FileType.OBSSettings);
+            Settings.SaveSettings(obsSettings, FileType.OBSSettings);
         }
     }
 }

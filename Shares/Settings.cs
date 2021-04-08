@@ -8,11 +8,11 @@ using System.Xml;
 using System.Xml.Serialization;
 using Shares.Model;
 using Shares.Enum;
+using Logger;
 
 namespace Shares
 {
-
-    public static class Setting
+    public static class Settings
     {
         private static readonly string savePathDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "SolidProgramming", "Twitch Bot Server");
         private static readonly string BotSettingsFilePath = Path.Combine(savePathDirectory, "BotSettings");
@@ -44,6 +44,7 @@ namespace Shares
             }
             catch (Exception)
             {
+                Log.Fatal($"Could not load settings for {fileType}", "Settings");
                 return default;
             }
         }
@@ -66,7 +67,10 @@ namespace Shares
 
                 File.WriteAllText(filePath, data);
             }
-            catch (Exception) { }
+            catch (Exception)
+            {
+                Log.Fatal($"Could not save settings for {fileType}", "Settings");
+            }
         }
         private static void CheckDirectoryExists()
         {

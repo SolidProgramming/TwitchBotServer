@@ -22,7 +22,7 @@ namespace OBSWebsocketController
             OBSWebsocket.SceneChanged += OBSWebsocket_SceneChanged;
             OBSWebsocket.Heartbeat += OBSWebsocket_Heartbeat;
 
-            obsSettings = Setting.LoadSettings<OBSSettingModel>(FileType.OBSSettings);
+            obsSettings = Settings.LoadSettings<OBSSettingModel>(FileType.OBSSettings);
 
             if (obsSettings == null) return;
 
@@ -34,7 +34,7 @@ namespace OBSWebsocketController
 
             if (!OBSWebsocket.IsConnected)
             {
-                Log.LogFatal($"Could not connect not OBS Websocket ws://127.0.0.1:{obsSettings.WebSocketPort}", GetType().Name);
+                Log.Fatal($"Could not connect not OBS Websocket ws://127.0.0.1:{obsSettings.WebSocketPort}", GetType().Name);
             }
         }
         private void OBSWebsocket_Heartbeat(OBSWebsocket sender, Heartbeat heatbeat)
@@ -43,11 +43,11 @@ namespace OBSWebsocketController
         }
         private void OBSWebsocket_SceneChanged(OBSWebsocket sender, string newSceneName)
         {
-            Log.LogInfo($"OBS Websocket switched scene to {newSceneName}", GetType().Name);
+            Log.Info($"OBS Websocket switched scene to {newSceneName}", GetType().Name);
         }
         private void OBSWebsocket_OBSExit(object sender, EventArgs e)
         {
-            Log.LogInfo("OBS Exited", GetType().Name);
+            Log.Info("OBS Exited", GetType().Name);
         }
         public void SwitchToScene(string sceneName)
         {
@@ -55,11 +55,11 @@ namespace OBSWebsocketController
         }
         private void OBSWebsocket_Disconnected(object sender, EventArgs e)
         {
-            Log.LogInfo($"OBS Websocket disconnected from ws://127.0.0.1:{obsSettings.WebSocketPort}", GetType().Name);
+            Log.Info($"OBS Websocket disconnected from ws://127.0.0.1:{obsSettings.WebSocketPort}", GetType().Name);
         }
         private void OBSWebsocket_Connected(object sender, EventArgs e)
         {
-            Log.LogInfo($"Successfully connected to OBS Websocket: ws://127.0.0.1:{obsSettings.WebSocketPort}", GetType().Name);
+            Log.Info($"Successfully connected to OBS Websocket: ws://127.0.0.1:{obsSettings.WebSocketPort}", GetType().Name);
         }
     }
 }
