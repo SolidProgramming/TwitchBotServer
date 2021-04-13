@@ -184,19 +184,20 @@ namespace Bot_Manager
         }
         private static async Task HandleTwitchMessageAsync(TwitchClient twitchClient, OnMessageReceivedArgs e)
         {
-            string username = e.ChatMessage.DisplayName;
+            string chatterUsername = e.ChatMessage.DisplayName;
             string channelName = e.ChatMessage.Channel;
             string userId = e.ChatMessage.UserId;
+            string chatMessage = e.ChatMessage.Message;
 
             var bot = Bots.SingleOrDefault(_ => _.TwitchClient == twitchClient);
 
-            if (!bot.Chatters.Contains(username))
+            if (!bot.Chatters.Contains(chatterUsername))
             {
-                bot.Chatters.Add(username);
+                bot.Chatters.Add(chatterUsername);
                 GreetChatter(bot, e.ChatMessage);
             }
 
-            if (IsValidUrl(username))
+            if (IsValidUrl(chatMessage))
             {
                 if (bot.Settings.ChatLinkAccessibility == ChatLinkAccessibility.Private)
                 {
@@ -204,18 +205,19 @@ namespace Bot_Manager
                     {
                         if (bot.Settings.ChatLinkAction == ChatLinkAction.DeleteMessage)
                         {
-                            TimeoutUser(ref twitchClient, channelName, username, 1);
+                            TimeoutUser(ref twitchClient, channelName, chatterUsername, 1);
                         }
                         else if (bot.Settings.ChatLinkAction == ChatLinkAction.BanUser)
                         {
-                            TimeoutUser(ref twitchClient, channelName, username, (int)TimeSpan.FromMinutes(15).TotalSeconds);
+                            TimeoutUser(ref twitchClient, channelName, chatterUsername, (int)TimeSpan.FromMinutes(15).TotalSeconds);
                         }
                     }
                 }
             }
 
             if (e.ChatMessage.Message.StartsWith("!so"))
-            {               
+            {
+                string username = e.ChatMessage.Message.Substring(e.ChatMessage.Message.IndexOf(' ') + 1).Replace("@", string.Empty);
                 if (await TwitchUserExistsAsync(bot, username))
                 {
                     bot.TwitchClient.SendMessage(channelName, $"Hey, check auch www.twitch.tv/{username} aus!");
@@ -266,6 +268,7 @@ namespace Bot_Manager
         }
         private static void GreetChatter(TwitchBotModel twitchBot, ChatMessage chat)
         {
+            if (twitchBot.Settings.GreetMessage.Length == 0) return;
             twitchBot.TwitchClient.SendMessage(chat.Channel, twitchBot.Settings.GreetMessage.ToCustomTextWithParameter(chat));
         }
     }
