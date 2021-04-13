@@ -19,11 +19,6 @@ namespace Shares
 
         public static List<string> GetCommandNames()
         {
-            foreach (var command in System.Enum.GetValues(typeof(ChatCommand)))
-            {
-                
-            }
-
             return System.Enum.GetNames(typeof(ChatCommand)).Where(_ => !_.Contains("None")).ToList();
         }
 

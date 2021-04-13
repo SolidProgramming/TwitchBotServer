@@ -31,20 +31,20 @@
                 </div>
             </div>
             @*<br />
-                <div class="row">
-                    <div class="col-sm-2">
-                        <label class="font-weight-bold">Erlaubte Nachrichten im Zeitraum</label>
-                        <input class="form-control" @bind-value="@BotSetting.MessagesAllowedInPeriod">
-                        <p class="float-right font-weight-bold">Stück</p>
+                    <div class="row">
+                        <div class="col-sm-2">
+                            <label class="font-weight-bold">Erlaubte Nachrichten im Zeitraum</label>
+                            <input class="form-control" @bind-value="@BotSetting.MessagesAllowedInPeriod">
+                            <p class="float-right font-weight-bold">Stück</p>
+                        </div>
+                        <div class="col-sm-2">
+                            <label class="font-weight-bold">Zeitraum</label>
+                            <input class="form-control" @bind-value="@BotSetting.ThrottlingPeriod">
+                            <p class="float-right font-weight-bold">Sekunden</p>
+                        </div>
                     </div>
-                    <div class="col-sm-2">
-                        <label class="font-weight-bold">Zeitraum</label>
-                        <input class="form-control" @bind-value="@BotSetting.ThrottlingPeriod">
-                        <p class="float-right font-weight-bold">Sekunden</p>
-                    </div>
-                </div>
-                <hr />
-            </div> *@
+                    <hr />
+                </div> *@
         </div>
         <hr />
         <div class="container-fluid">
@@ -212,6 +212,7 @@
     private bool ChatLinkAccessibilityPublic = false;
     private bool ChatLinkAccessibilityPrivate = false;
 
+    private List<ChatCommandModel> ChatCommands = new();
 
     public BotSettingModel BotSetting { get; set; }
 

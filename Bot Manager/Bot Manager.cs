@@ -1,21 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
-using Newtonsoft.Json;
-using Logger;
 using Shares.Model;
 using Shares;
 using Shares.Enum;
 using TwitchLib.Client.Models;
-using TwitchLib.Communication.Models;
-using TwitchLib.Communication.Clients;
 using TwitchLib.Client;
 using System.Linq;
 using TwitchLib.Client.Events;
 using System.Threading.Tasks;
 using OBSWebsocketController;
 using System.Text.RegularExpressions;
-using Shares.Enum;
 
 namespace Bot_Manager
 {
@@ -95,7 +89,6 @@ namespace Bot_Manager
         }
         public static void SaveBotsSettings(List<TwitchBotModel> bots)
         {
-            //Setting.SaveBotsSettings(bots);
             Settings.SaveSettings(bots.Select(_ => _.Settings).ToList(), Shares.Enum.FileType.BotSettings);
         }
         public static void SetBotSettings(string id, BotSettingModel botSetting)
@@ -106,8 +99,6 @@ namespace Bot_Manager
         }
         public static List<TwitchBotModel> ReadBotSettings()
         {
-            //List<BotSettingModel> tempSettings = Setting.ReadBotSettings();
-
             List<BotSettingModel> tempSettings = Settings.LoadSettings<List<BotSettingModel>>(Shares.Enum.FileType.BotSettings);
 
             Bots.Clear();
