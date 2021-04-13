@@ -35,6 +35,7 @@ namespace Bot_Manager
             bot.TwitchClient.OnConnected += TwitchClient_OnConnected;
             bot.TwitchClient.OnConnectionError += TwitchClient_OnConnectionError;
             bot.TwitchClient.OnMessageReceived += TwitchClient_OnMessageReceived;
+            bot.TwitchClient.OnNewSubscriber += TwitchClient_OnNewSubscriber;
 
             bot.TwitchClient.Initialize(credentials, botSetting.Channel);
 
@@ -46,6 +47,10 @@ namespace Bot_Manager
             Settings.SaveSettings(Bots.Select(_ => _.Settings).ToList(), FileType.BotSettings);
 
             return bot;
+        }
+        private static void TwitchClient_OnNewSubscriber(object sender, OnNewSubscriberArgs e)
+        {
+            Console.WriteLine(e.Subscriber.DisplayName);
         }
         public static TwitchBotModel CreateBot(TwitchBotModel bot)
         {
@@ -179,9 +184,19 @@ namespace Bot_Manager
         }
         private static async Task HandleTwitchMessageAsync(TwitchClient twitchClient, OnMessageReceivedArgs e)
         {
+            string username = e.ChatMessage.DisplayName;
+            string channelName = e.ChatMessage.Channel;
+            string userId = e.ChatMessage.UserId;
+
             var bot = Bots.SingleOrDefault(_ => _.TwitchClient == twitchClient);
 
-            if (IsValidUrl(e.ChatMessage.Message))
+            if (!bot.Chatters.Contains(username))
+            {
+                bot.Chatters.Add(username);
+                GreetChatter(bot, e.ChatMessage);
+            }
+
+            if (IsValidUrl(username))
             {
                 if (bot.Settings.ChatLinkAccessibility == ChatLinkAccessibility.Private)
                 {
@@ -189,26 +204,25 @@ namespace Bot_Manager
                     {
                         if (bot.Settings.ChatLinkAction == ChatLinkAction.DeleteMessage)
                         {
-                            TimeoutUser(ref twitchClient, bot.Settings.Channel, e.ChatMessage.Username, 1);
+                            TimeoutUser(ref twitchClient, channelName, username, 1);
                         }
                         else if (bot.Settings.ChatLinkAction == ChatLinkAction.BanUser)
                         {
-                            TimeoutUser(ref twitchClient, bot.Settings.Channel, e.ChatMessage.Username, (int)TimeSpan.FromMinutes(15).TotalSeconds);
+                            TimeoutUser(ref twitchClient, channelName, username, (int)TimeSpan.FromMinutes(15).TotalSeconds);
                         }
                     }
                 }
             }
 
             if (e.ChatMessage.Message.StartsWith("!so"))
-            {
-                string username = e.ChatMessage.Message.Substring(e.ChatMessage.Message.IndexOf(' ') + 1).Replace("@", string.Empty);
-                if (await TwitchUserExists(bot, username))
+            {               
+                if (await TwitchUserExistsAsync(bot, username))
                 {
-                    bot.TwitchClient.SendMessage(e.ChatMessage.Channel, $"Hey, check auch www.twitch.tv/{username} aus!");
+                    bot.TwitchClient.SendMessage(channelName, $"Hey, check auch www.twitch.tv/{username} aus!");
                 }
                 else
                 {
-                    bot.TwitchClient.SendReply(e.ChatMessage.Channel, e.ChatMessage.UserId, "Dieser Benutzer existiert nicht.");
+                    bot.TwitchClient.SendReply(channelName, userId, "Dieser Benutzer existiert nicht.");
                 }
             }
 
@@ -241,7 +255,7 @@ namespace Bot_Manager
         {
             twitchClient.SendMessage(channel, $".timeout {username} {duration} {reason}");
         }
-        private static async Task<bool> TwitchUserExists(TwitchBotModel twitchBot, string username)
+        private static async Task<bool> TwitchUserExistsAsync(TwitchBotModel twitchBot, string username)
         {
             var user = await twitchBot.TwitchAPI.V5.Users.GetUserByNameAsync(username).ConfigureAwait(true);
 
@@ -249,6 +263,10 @@ namespace Bot_Manager
                 return true;
 
             return false;
+        }
+        private static void GreetChatter(TwitchBotModel twitchBot, ChatMessage chat)
+        {
+            twitchBot.TwitchClient.SendMessage(chat.Channel, twitchBot.Settings.GreetMessage.ToCustomTextWithParameter(chat));
         }
     }
 }

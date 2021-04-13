@@ -49,22 +49,26 @@
         <hr />
         <div class="container-fluid">
             <div class="row">
-                <div class="col-sm-4">
-                    <label class="font-weight-bold">Nachricht bei Sub</label>
-                    <input class="form-control" placeholder="Danke für dein Sub!" @bind-value="@BotSetting.SubMessage">
+                <div class="col-sm-3">
+                    <label class="font-weight-bold">Nachricht bei neuem Chatter</label>
+                    <input class="form-control" placeholder="Hallo {username}!" @bind-value="BotSetting.GreetMessage">
                 </div>
-                <div class="col-sm-4">
+                <div class="col-sm-3">
+                    <label class="font-weight-bold">Nachricht bei Sub</label>
+                    <input class="form-control" placeholder="Danke für dein Sub {username}!" @bind-value="@BotSetting.SubMessage">
+                </div>
+                <div class="col-sm-3">
                     <label class="font-weight-bold">Nachricht bei @@Message</label>
                     <input class="form-control" placeholder="Mich gibt's gar nicht!" @bind-value="@BotSetting.ChatDMResponse">
                 </div>
             </div>
             <br />
             <div class="row">
-                <div class="col-sm-4">
+                <div class="col-sm-3">
                     <label class="font-weight-bold">Nachricht bei Channel Beitritt</label>
                     <input class="form-control" placeholder="Hallo! Ich bin der Bot von diesem Channel!" @bind-value="@BotSetting.ChannelJoinMessage">
                 </div>
-                <div class="col-sm-4">
+                <div class="col-sm-3">
                     <label class="font-weight-bold">Nachricht bei Channel Verlassen</label>
                     <input class="form-control" placeholder="Bravo six, going dark!" @bind-value="BotSetting.ChannelLeaveMessage">
                 </div>
