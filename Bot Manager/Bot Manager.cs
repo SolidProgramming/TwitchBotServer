@@ -10,6 +10,7 @@ using TwitchLib.Client.Events;
 using System.Threading.Tasks;
 using OBSWebsocketController;
 using System.Text.RegularExpressions;
+using TwitchLib.Api.V5.Models.Users;
 
 namespace Bot_Manager
 {
@@ -47,10 +48,6 @@ namespace Bot_Manager
             Settings.SaveSettings(Bots.Select(_ => _.Settings).ToList(), FileType.BotSettings);
 
             return bot;
-        }
-        private static void TwitchClient_OnNewSubscriber(object sender, OnNewSubscriberArgs e)
-        {
-            Console.WriteLine(e.Subscriber.DisplayName);
         }
         public static TwitchBotModel CreateBot(TwitchBotModel bot)
         {
@@ -182,6 +179,10 @@ namespace Bot_Manager
             var bot = Bots.SingleOrDefault(_ => _.TwitchClient == (TwitchClient)sender);
             bot.TwitchClient.SendMessage(e.Channel, bot.Settings.ChannelJoinMessage);
         }
+        private static void TwitchClient_OnNewSubscriber(object sender, OnNewSubscriberArgs e)
+        {
+            HandleNewSubscriber((TwitchClient)sender, e);
+        }
         private static async Task HandleTwitchMessageAsync(TwitchClient twitchClient, OnMessageReceivedArgs e)
         {
             string chatterUsername = e.ChatMessage.DisplayName;
@@ -229,6 +230,18 @@ namespace Bot_Manager
             }
 
         }
+        private static void HandleNewSubscriber(TwitchClient twitchClient, OnNewSubscriberArgs e)
+        {
+            TwitchBotModel bot = Bots.SingleOrDefault(_ => _.TwitchClient == twitchClient);
+
+            if (bot.Settings.SubMessage.Length == 0) return;
+
+            string username = e.Subscriber.DisplayName;
+            string channel = e.Channel;
+            string userId = e.Subscriber.Id;
+
+            twitchClient.SendMessage(channel, bot.Settings.SubMessage.ToCustomTextWithParameter(e.Subscriber));
+        }
         private static void HandleCommand(Shares.Enum.ChatCommand chatCommand, ref TwitchClient twitchClient, OnMessageReceivedArgs e)
         {
             //switch (chatCommand)
@@ -259,7 +272,7 @@ namespace Bot_Manager
         }
         private static async Task<bool> TwitchUserExistsAsync(TwitchBotModel twitchBot, string username)
         {
-            var user = await twitchBot.TwitchAPI.V5.Users.GetUserByNameAsync(username).ConfigureAwait(true);
+            Users user = await twitchBot.TwitchAPI.V5.Users.GetUserByNameAsync(username).ConfigureAwait(true);
 
             if (user.Total > 0)
                 return true;
