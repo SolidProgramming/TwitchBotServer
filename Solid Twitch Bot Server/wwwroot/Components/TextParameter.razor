@@ -1,0 +1,17 @@
+﻿@using Data
+
+<label draggable="true"
+       class="draggable font-weight-bold bg-info rounded m-1 pl-2 pt-1 pb-1 pr-2"
+       @ondragstart="@(() => HandleDragStart(TextParameterModel))">
+    @TextParameterModel.Value
+</label>
+
+@code {
+    
+    [Parameter] public TextParameterModel TextParameterModel { get; set; }
+
+    private void HandleDragStart(TextParameterModel selectedTextParameter)
+    {
+        //Container.Payload = selectedTextParameter;
+    }
+}

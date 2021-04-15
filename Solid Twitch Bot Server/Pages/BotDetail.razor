@@ -3,6 +3,7 @@
 @using Shares.Model;
 @using Shares.Enum;
 @using Services;
+@using Solid_Twitch_Bot_Server.wwwroot.Components;
 @inject IBotService BotService;
 @inject NavigationManager NavigationManager
 
@@ -50,8 +51,10 @@
         <div class="container-fluid">
             <div class="row">
                 <div class="col-sm-3">
-                    <label class="font-weight-bold">Nachricht bei neuem Chatter</label>
-                    <input class="form-control" placeholder="Hallo {username}!" @bind-value="BotSetting.GreetMessage">
+                    <TextParameterInput Caption="Nachricht bei neuem Chatter"
+                                               InputPlaceholder="Hallo {username}!">
+                        <!--TODO krams-->
+                    </TextParameterInput>                   
                 </div>
                 <div class="col-sm-3">
                     <label class="font-weight-bold">Nachricht bei Sub</label>
@@ -71,6 +74,11 @@
                 <div class="col-sm-3">
                     <label class="font-weight-bold">Nachricht bei Channel Verlassen</label>
                     <input class="form-control" placeholder="Bravo six, going dark!" @bind-value="BotSetting.ChannelLeaveMessage">
+                </div>
+                <div class="col-sm-3">
+                    <TextParameterContainer>
+
+                    </TextParameterContainer>
                 </div>
             </div>
             <br />
@@ -197,10 +205,11 @@
     </EditForm>
 </div>
 @code {
-    public int i = 0;
-    public int j = 0;
+    private int i = 0;
+    private int j = 0;
 
-    public string commandValue = "";
+    private string commandValue = "";
+    private string dropClass = "";
 
     [Parameter]
     public string Id { get; set; }
@@ -228,60 +237,70 @@
         ChatLinkAccessibility = BotSetting.ChatLinkAccessibility;
     }
 
-    public void Submit()
+    private void Submit()
     {
         BotService.SaveBotsSettings();
     }
 
-    public void AddScene()
+    private void AddScene()
     {
         BotSetting.Scenes.Add(new SceneModel { Name = SceneName, Accessibility = SceneAccessibility });
     }
 
-    public void DeleteScene(string sceneName)
+    private void DeleteScene(string sceneName)
     {
         BotSetting.Scenes.RemoveAll(_ => _.Name == sceneName);
     }
 
-    public void RedirectToBotsPage()
+    private void RedirectToBotsPage()
     {
         NavigationManager.NavigateTo("/bots");
     }
 
-    public void OnSceneAccessibilityChanged(int mode)
+    private void OnSceneAccessibilityChanged(int mode)
     {
         SceneAccessibility = (SceneAccessibility)mode;
     }
 
-    public void OnChatCommandAccessibilityChanged(int mode)
+    private void OnChatCommandAccessibilityChanged(int mode)
     {
         ChatCommandAccessibility = (ChatCommandAccessibility)mode;
     }
 
-    public void AddChatCommand()
+    private void AddChatCommand()
     {
         // MyBot.BotSetting.ChatCommands.Add(new ChatCommandModel { Accessibility = ChatCommandAccessibility, ChatCommandText = CommandName });
     }
 
-    public void DeleteChatCommand(string commandName)
+    private void DeleteChatCommand(string commandName)
     {
         BotSetting.ChatCommands.RemoveAll(_ => _.ChatCommandText == commandName);
     }
 
-    public void OnChatCommandAccessibilityChanged(string textCommand, ChatCommandAccessibility commandAccessibility)
+    private void OnChatCommandAccessibilityChanged(string textCommand, ChatCommandAccessibility commandAccessibility)
     {
 
     }
 
-    public void OnChatLinkAccessibilityChanged(int mode)
+    private void OnChatLinkAccessibilityChanged(int mode)
     {
         ChatLinkAccessibility = (ChatLinkAccessibility)mode;
         BotSetting.ChatLinkAccessibility = ChatLinkAccessibility;
     }
 
-    public void SetBotSettings()
+    private void SetBotSettings()
     {
         BotService.SetBotSettings(Id, BotSetting);
+    }
+
+    private void OnParameterDrop()
+    {
+
+    }
+
+    private void OnDragEnter()
+    {
+
     }
 
 }

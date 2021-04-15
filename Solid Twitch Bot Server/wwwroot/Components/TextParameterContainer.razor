@@ -1,0 +1,39 @@
+﻿@using Data
+
+
+<div class="border rounded pt-2 pl-1 pr-1 pb-2">
+    @foreach (TextParameterModel textParameter in TextParameters)
+    {
+        <TextParameter TextParameterModel="textParameter"></TextParameter>
+    }
+</div>
+
+
+@code {
+    private List<TextParameterModel> TextParameters = new();
+
+    protected override void OnInitialized()
+    {
+        TextParameters.Add(
+            new()
+            {
+                Value = "Username"
+            });
+
+        TextParameters.Add(
+            new()
+            {
+                Value = "Channel"
+            });
+        TextParameters.Add(
+            new()
+            {
+                Value = "SubCount"
+            });
+        TextParameters.Add(
+            new()
+            {
+                Value = "SubMonthCount"
+            });
+    }
+}

@@ -1,0 +1,37 @@
+﻿@using Data
+
+<label class="font-weight-bold">@Caption</label>
+<input class="form-control dropzone @dropClass"
+       ondragover="event.preventDefault();"
+       placeholder="@InputPlaceholder"
+       @ondrop="HandleDrop"
+       @ondragenter="HandleDragEnter"
+       @ondragleave="HandleDragLeave">
+
+@code {
+    private string dropClass = "";
+
+    [Parameter] public List<TextParameterModel> TextParameters { get; set; }
+    //[Parameter] public RenderFragment ChildContent { get; set; }
+
+
+    [Parameter] public string Caption { get; set; }
+    [Parameter] public string InputPlaceholder { get; set; }
+
+
+    private void HandleDragLeave()
+    {
+        dropClass = "";
+    }
+
+    private void HandleDrop()
+    {
+        dropClass = "";
+    }
+
+    private void HandleDragEnter()
+    {
+        //check if drop allowed
+    }
+
+}
