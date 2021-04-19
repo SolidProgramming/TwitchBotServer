@@ -1,7 +1,8 @@
 ﻿@using Data
+@inject IJSRuntime JsRuntime
 
 <label class="font-weight-bold">@Caption</label>
-<input class="form-control dropzone @dropClass"
+<input id="test" class="form-control dropzone @dropClass"
        ondragover="event.preventDefault();"
        placeholder="@InputPlaceholder"
        @ondrop="HandleDrop"
@@ -27,11 +28,18 @@
     private void HandleDrop()
     {
         dropClass = "";
+        GetInputCursorPosition();
+
     }
 
     private void HandleDragEnter()
     {
         //check if drop allowed
+    }
+
+    private async Task GetInputCursorPosition()
+    {
+        var bla = await JsRuntime.InvokeAsync<string>("GetCursorPosFromInput", "test");
     }
 
 }

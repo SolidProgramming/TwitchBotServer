@@ -14,14 +14,18 @@ using Logger;
 using Solid_Twitch_Bot_Server.Services;
 using System.Runtime.InteropServices;
 using System.Diagnostics;
+using Microsoft.AspNetCore.Hosting.Server.Features;
+using Microsoft.AspNetCore.Http.Features;
 
 namespace Solid_Twitch_Bot_Server
 {
     public class Startup
     {
+        private static List<string> HostAdresses = new();
+
         public Startup(IConfiguration configuration)
         {
-            Configuration = configuration;            
+            Configuration = configuration;
         }
 
         public IConfiguration Configuration { get; }
@@ -35,12 +39,14 @@ namespace Solid_Twitch_Bot_Server
             services.AddSingleton<IBotService, BotService>();
             services.AddSingleton<ISceneSwitcherService, SceneSwitcherService>();
             services.AddSingleton<IOBSService, OBSService>();
-            Log.Init();           
+            Log.Init();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IHostApplicationLifetime lifetime)
         {
+            lifetime.ApplicationStarted.Register(() => GetAdresses(app.ServerFeatures));
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -51,13 +57,8 @@ namespace Solid_Twitch_Bot_Server
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
                 // app.UsePathBase("/Solid Twitch Bot");    
-
-                if (Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER") != "true")
-                {
-                    OpenBrowser("https://localhost:5001/");
-                }
             }
-                        
+
 
             app.UseHttpsRedirection();
             app.UseStaticFiles();
@@ -69,8 +70,9 @@ namespace Solid_Twitch_Bot_Server
                 endpoints.MapBlazorHub();
                 endpoints.MapFallbackToPage("/_Host");
             });
+
         }
-        private void OpenBrowser(string url)
+        private static void OpenBrowser(string url)
         {
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
@@ -88,6 +90,16 @@ namespace Solid_Twitch_Bot_Server
             {
                 // throw 
             }
+        }
+        static void GetAdresses(IFeatureCollection features)
+        {
+            HostAdresses.AddRange(features.Get<IServerAddressesFeature>().Addresses);
+
+            if (Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER") != "true")
+            {
+                OpenBrowser(HostAdresses[1]);
+            }
+
         }
     }
 }
