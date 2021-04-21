@@ -15,11 +15,7 @@ namespace Solid_Twitch_Bot_Server
         {
             args = new string[1];
 
-            if (Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER") == "true")
-            {
-                args[0] = "";
-            }
-            else
+            if (Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER") != "true")
             {
                 args[0] = "http://[::1]:0;https://[::1]:0";
             }
