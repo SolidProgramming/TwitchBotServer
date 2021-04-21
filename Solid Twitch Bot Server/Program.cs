@@ -20,7 +20,7 @@ namespace Solid_Twitch_Bot_Server
             Host.CreateDefaultBuilder(args)
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
-                    webBuilder.UseStartup<Startup>();
+                    webBuilder.UseStartup<Startup>().UseUrls("http://[::1]:0;https://[::1]:0");
                 });
     }
 }
