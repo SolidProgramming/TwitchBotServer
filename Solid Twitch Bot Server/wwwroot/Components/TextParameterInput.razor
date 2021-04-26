@@ -1,13 +1,15 @@
 ﻿@using Data
 @inject IJSRuntime JsRuntime
 
+
 <label class="font-weight-bold">@Caption</label>
 <input id="test" class="form-control dropzone @dropClass"
        ondragover="event.preventDefault();"
        placeholder="@InputPlaceholder"
        @ondrop="HandleDrop"
        @ondragenter="HandleDragEnter"
-       @ondragleave="HandleDragLeave">
+       @ondragleave="HandleDragLeave"
+       value="@Value" @oninput="OnValueChanged">
 
 @code {
     private string dropClass = "";
@@ -15,7 +17,8 @@
     [Parameter] public List<TextParameterModel> TextParameters { get; set; }
     //[Parameter] public RenderFragment ChildContent { get; set; }
 
-
+    [Parameter] public EventCallback<string> ValueChanged { get; set; }
+    [Parameter] public string Value { get; set; }
     [Parameter] public string Caption { get; set; }
     [Parameter] public string InputPlaceholder { get; set; }
 
@@ -40,6 +43,12 @@
     private async Task GetInputCursorPosition()
     {
         var bla = await JsRuntime.InvokeAsync<string>("GetCursorPosFromInput", "test");
+    }
+
+    private Task OnValueChanged(ChangeEventArgs e)
+    {
+        Value = e.Value.ToString();       
+        return ValueChanged.InvokeAsync(Value);
     }
 
 }

@@ -17,7 +17,7 @@ namespace Bot_Manager
     public static class BotManager
     {
         private static List<TwitchBotModel> Bots = new();
-        private static OBSWebsocketControllerClient OBSController = new();
+        private static OBSWebsocketControllerClient OBSController;
 
         public static TwitchBotModel CreateBot(BotSettingModel botSetting)
         {

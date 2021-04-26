@@ -52,7 +52,7 @@
             <div class="row">
                 <div class="col-sm-3">
                     <TextParameterInput Caption="Nachricht bei neuem Chatter"
-                                               InputPlaceholder="Hallo {username}!">
+                                               InputPlaceholder="Hallo {username}!" @bind-value="BotSetting.GreetMessage">
                         <!--TODO krams-->
                     </TextParameterInput>                   
                 </div>
