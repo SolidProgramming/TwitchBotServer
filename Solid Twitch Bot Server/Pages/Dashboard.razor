@@ -4,27 +4,26 @@
 @using Services;
 @inject ISceneSwitcherService SwitcherService;
 
+    <h3>Scene Switching Debug</h3>
+    <br />
+    <div class="container-fluid">
 
-<h3>Scene Switching Debug</h3>
-<br />
-<div class="container-fluid">
+        <input type="button" class="btn btn-primary" @onclick="@(e => Submit())" value="test scene switching" style="width:200px" />
 
-    <input type="button" class="btn btn-primary" @onclick="@(e => Submit())" value="test scene switching" style="width:200px" />
+    </div>
 
-</div>
-
-@code{
-
+    @code{
 
 
-    protected override void OnInitialized()
-    {
-        SwitcherService = new SceneSwitcherService();
+
+        protected override void OnInitialized()
+        {
+            SwitcherService = new SceneSwitcherService();
+        }
+
+        public void Submit()
+        {
+            SwitcherService.TriggerSceneSwitch("WOF");
+        }
+
     }
-
-    public void Submit()
-    {
-        SwitcherService.TriggerSceneSwitch("WOF");
-    }
-
-}

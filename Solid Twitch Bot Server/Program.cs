@@ -25,13 +25,13 @@ namespace Solid_Twitch_Bot_Server
             {
                 string processName = Process.GetCurrentProcess().ProcessName;
                 int port = GetProcessLastOpenPort(processName);
-                OpenBrowser($"https://[::1]:{port}/");
+                OpenBrowser($"http://[::1]:{port}/");
                 return;
             }
 
             if (Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER") != "true")
             {
-                args[0] = "http://[::1]:0;https://[::1]:0";
+                _args[0] = "http://[::1]:0";
             }
 
             CreateHostBuilder().Build().Run();

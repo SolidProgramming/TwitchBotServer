@@ -6,7 +6,12 @@
     <UserSecretsId>7573a318-fedf-4639-bab7-624fc1a1af2d</UserSecretsId>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
     <OutputType>WinExe</OutputType>
+    <ApplicationIcon></ApplicationIcon>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="wwwroot\favicon.ico" />
+  </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Bot Manager\BotManager.csproj" />
