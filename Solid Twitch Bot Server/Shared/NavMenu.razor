@@ -1,4 +1,6 @@
-﻿<div class="top-row pl-4 navbar navbar-dark">
+﻿@inject IJSRuntime js
+
+<div class="top-row pl-4 navbar navbar-dark">
     <a class="navbar-brand" href="">Solid Twitch Bot Server</a>
     <button class="navbar-toggler" @onclick="ToggleNavMenu">
         <span class="navbar-toggler-icon"></span>
@@ -8,28 +10,34 @@
 <div class="@NavMenuCssClass" @onclick="ToggleNavMenu">
     <ul class="nav flex-column">
         <li class="nav-item px-3">
+            <NavLink class="nav-link bg-danger" Match="NavLinkMatch.All" @onclick="StopServer">
+                <span class="oi oi-delete pt-1" aria-hidden="true"></span> Stop Server
+            </NavLink>
+        </li>
+        <hr />
+        <li class="nav-item px-3">
             <NavLink class="nav-link" href="/dashboard" Match="NavLinkMatch.All">
-                <span class="oi oi-home" aria-hidden="true"></span> Dashboard
+                <span class="oi oi-home pt-1" aria-hidden="true"></span> Dashboard
             </NavLink>
         </li>
         <li class="nav-item px-3">
             <NavLink class="nav-link" href="/bots" Match="NavLinkMatch.All">
-                <span class="oi oi-plus" aria-hidden="true"></span> Bots
+                <span class="oi oi-plus pt-1" aria-hidden="true"></span> Bots
             </NavLink>
         </li>
         <li class="nav-item px-3">
             <NavLink class="nav-link" href="/commands" Match="NavLinkMatch.All">
-                <span class="oi oi-terminal" aria-hidden="true"></span> Befehle
+                <span class="oi oi-terminal pt-1" aria-hidden="true"></span> Befehle
             </NavLink>
         </li>
         <li class="nav-item px-3">
             <NavLink class="nav-link" href="/obs" Match="NavLinkMatch.All">
-                <span class="oi oi-ellipses" aria-hidden="true"></span> OBS
+                <span class="oi oi-ellipses pt-1" aria-hidden="true"></span> OBS
             </NavLink>
         </li>
         <li class="nav-item px-3">
             <NavLink class="nav-link" href="/settings" Match="NavLinkMatch.All">
-                <span class="oi oi-ellipses" aria-hidden="true"></span> Einstellungen
+                <span class="oi oi-ellipses pt-1" aria-hidden="true"></span> Einstellungen
             </NavLink>
         </li>
     </ul>
@@ -43,5 +51,11 @@
     private void ToggleNavMenu()
     {
         collapseNavMenu = !collapseNavMenu;
+    }
+
+    private void StopServer()
+    {
+        js.InvokeVoidAsync("window.close");
+        Environment.Exit(0);
     }
 }
