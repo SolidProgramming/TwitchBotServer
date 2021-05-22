@@ -21,9 +21,15 @@
                 <label class="font-weight-bold">Twitch Auth Token</label>
                 <input class="form-control" @bind="BotSetting.TwitchOAuth">
             </div>
-            <div class="col-sm-4">
+            @*<div class="col-sm-4">
                 <label class="font-weight-bold">Twitch Client Id(dev.twitch.tv/console/apps)</label>
                 <input class="form-control" @bind-value="@BotSetting.TwitchClientId">
+            </div>*@
+        </div>
+        <div class="row">
+            <div class="col-lg-11">
+                <label class="font-weight-bold">Streamelements JWT</label>
+                <input class="form-control" @bind-value="@BotSetting.StreamelementsJWT">
             </div>
         </div>
         <br />
@@ -41,7 +47,7 @@
         </div>*@
         <hr />
     </div>
-    <div class="container-fluid">
+    <!--<div class="container-fluid">
         <div class="row">
             <div class="col-sm-4">
                 <label class="font-weight-bold">Nachricht bei Sub</label>
@@ -63,7 +69,7 @@
                 <input class="form-control" placeholder="Bravo six, going dark!" @bind="BotSetting.ChannelLeaveMessage">
             </div>
         </div>
-    </div>
+    </div>-->
     <br />
     <div class="container-fluid">
         <div class="row">

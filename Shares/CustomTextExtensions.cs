@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Shares.Enum;
+using StreamElementsNET.Models.Follower;
 using TwitchLib.Client.Enums.Internal;
 using TwitchLib.Client.Events;
 using TwitchLib.Client.Models;
@@ -19,7 +20,8 @@ namespace Shares
                 new()
                 {
                     { typeof(Subscriber), "DisplayName" },
-                    { typeof(ChatMessage), "DisplayName" }
+                    { typeof(ChatMessage), "DisplayName" },
+                    { typeof(Follower), "DisplayName"}
                 }
             }
         };

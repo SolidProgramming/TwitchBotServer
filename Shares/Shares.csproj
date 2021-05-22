@@ -5,6 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="StreamElementsNET" Version="1.0.0" />
     <PackageReference Include="TwitchLib" Version="3.2.0" />
   </ItemGroup>
 

@@ -12,7 +12,7 @@ using Logger;
 
 namespace Shares
 {
-    public static class Settings
+    public static class SettingsHandler
     {
         private static readonly string savePathDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "SolidProgramming", "Twitch Bot Server");
         private static readonly string BotSettingsFilePath = Path.Combine(savePathDirectory, "BotSettings");
@@ -76,7 +76,6 @@ namespace Shares
         {
             if (!Directory.Exists(savePathDirectory)) Directory.CreateDirectory(savePathDirectory);
         }
-
 
     }
 }

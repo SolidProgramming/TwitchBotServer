@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using OBSWebsocketController;
 using System.Text.RegularExpressions;
 using TwitchLib.Api.V5.Models.Users;
+using StreamElementsNET;
 
 namespace Bot_Manager
 {
@@ -27,6 +28,7 @@ namespace Bot_Manager
             {
                 TwitchClient = new(),
                 TwitchAPI = new(),
+                StreamElementsClient = new(botSetting.StreamelementsJWT),
                 Settings = botSetting
             };
 
@@ -37,15 +39,22 @@ namespace Bot_Manager
             bot.TwitchClient.OnConnectionError += TwitchClient_OnConnectionError;
             bot.TwitchClient.OnMessageReceived += TwitchClient_OnMessageReceived;
             bot.TwitchClient.OnNewSubscriber += TwitchClient_OnNewSubscriber;
+           
+            bot.StreamElementsClient.OnConnected += StreamElementsClient_OnConnected;
+            bot.StreamElementsClient.OnAuthenticated += StreamElementsClient_OnAuthenticated;
+            bot.StreamElementsClient.OnAuthenticationFailure += StreamElementsClient_OnAuthenticationFailure;
+            bot.StreamElementsClient.OnReceivedRawMessage += StreamElementsClient_OnReceivedRawMessage;
+            bot.StreamElementsClient.OnSent += StreamElementsClient_OnSent;
+            bot.StreamElementsClient.OnFollower += (sender, e) => StreamElementsClient_OnFollower(sender, e, bot.Id);
 
             bot.TwitchClient.Initialize(credentials, botSetting.Channel);
 
-            bot.TwitchAPI.Settings.AccessToken = bot.Settings.TwitchOAuth;
+            bot.TwitchAPI.Settings.AccessToken = bot.Settings.TwitchClientId;
             bot.TwitchAPI.Settings.ClientId = bot.Settings.TwitchClientId;
 
             Bots.Add(bot);
 
-            Settings.SaveSettings(Bots.Select(_ => _.Settings).ToList(), FileType.BotSettings);
+            SettingsHandler.SaveSettings(Bots.Select(_ => _.Settings).ToList(), FileType.BotSettings);
 
             return bot;
         }
@@ -56,7 +65,8 @@ namespace Bot_Manager
             bot = new TwitchBotModel
             {
                 TwitchClient = new(),
-                TwitchAPI = new()
+                TwitchAPI = new(),
+                StreamElementsClient = new(bot.Settings.StreamelementsJWT)
             };
 
             bot.TwitchClient.OnJoinedChannel += TwitchClient_OnJoinedChannel;
@@ -66,9 +76,17 @@ namespace Bot_Manager
 
             bot.TwitchClient.Initialize(credentials, bot.Settings.Channel);
 
+            bot.StreamElementsClient.OnConnected += StreamElementsClient_OnConnected;
+            bot.StreamElementsClient.OnFollower += (sender, e) => StreamElementsClient_OnFollower(sender, e, bot.Id);
+            bot.StreamElementsClient.OnAuthenticated += StreamElementsClient_OnAuthenticated;
+            bot.StreamElementsClient.OnAuthenticationFailure += StreamElementsClient_OnAuthenticationFailure;
+            bot.StreamElementsClient.OnReceivedRawMessage += StreamElementsClient_OnReceivedRawMessage;
+            bot.StreamElementsClient.OnSent += StreamElementsClient_OnSent;
+            bot.StreamElementsClient.OnSubscriber += (sender, e) => StreamElementsClient_OnSubscriber(sender, e, bot.Id);
+
             Bots.Add(bot);
 
-            Settings.SaveSettings(Bots.Select(_ => _.Settings).ToList(), FileType.BotSettings);
+            SettingsHandler.SaveSettings(Bots.Select(_ => _.Settings).ToList(), FileType.BotSettings);
 
             return bot;
         }
@@ -91,7 +109,7 @@ namespace Bot_Manager
         }
         public static void SaveBotsSettings(List<TwitchBotModel> bots)
         {
-            Settings.SaveSettings(bots.Select(_ => _.Settings).ToList(), Shares.Enum.FileType.BotSettings);
+            SettingsHandler.SaveSettings(bots.Select(_ => _.Settings).ToList(), Shares.Enum.FileType.BotSettings);
         }
         public static void SetBotSettings(string id, BotSettingModel botSetting)
         {
@@ -101,7 +119,7 @@ namespace Bot_Manager
         }
         public static List<TwitchBotModel> ReadBotSettings()
         {
-            List<BotSettingModel> tempSettings = Settings.LoadSettings<List<BotSettingModel>>(Shares.Enum.FileType.BotSettings);
+            List<BotSettingModel> tempSettings = SettingsHandler.LoadSettings<List<BotSettingModel>>(Shares.Enum.FileType.BotSettings);
 
             Bots.Clear();
 
@@ -126,6 +144,11 @@ namespace Bot_Manager
 
             bot.TwitchClient.Connect();
 
+            if (!string.IsNullOrEmpty(bot.Settings.StreamelementsJWT))
+            {
+                bot.StreamElementsClient.Connect();
+            }
+
             bot.Status = BotClientStatusModel.Started;
         }
         public static async Task StopBot(string botId)
@@ -144,10 +167,6 @@ namespace Bot_Manager
             await Task.Delay(1);
             bot.TwitchClient.LeaveChannel(bot.Settings.Channel);
             bot.TwitchClient.Disconnect();
-            //bot.OnJoinedChannel -= TwitchClient_OnJoinedChannel;
-            //bot.OnConnected -= TwitchClient_OnConnected;
-            //bot.OnConnectionError -= TwitchClient_OnConnectionError;
-            //bot.OnMessageReceived -= TwitchClient_OnMessageReceived;
             bot.Status = BotClientStatusModel.Stopped;
         }
         public static async Task DeleteBot(string botId)
@@ -160,7 +179,7 @@ namespace Bot_Manager
             }
 
             Bots.Remove(bot);
-            Settings.SaveSettings(Bots.Select(_ => _.Settings).ToList(), FileType.BotSettings);
+            SettingsHandler.SaveSettings(Bots.Select(_ => _.Settings).ToList(), FileType.BotSettings);
         }
         private static void TwitchClient_OnMessageReceived(object sender, OnMessageReceivedArgs e)
         {
@@ -178,10 +197,36 @@ namespace Bot_Manager
         {
             var bot = Bots.SingleOrDefault(_ => _.TwitchClient == (TwitchClient)sender);
             bot.TwitchClient.SendMessage(e.Channel, bot.Settings.ChannelJoinMessage);
+        }        
+        private static void StreamElementsClient_OnFollower(object sender, StreamElementsNET.Models.Follower.Follower e, string botId)
+        {           
+            var bot = Bots.Single(_ => _.Id == botId);
+            HandleNewFollower(bot, e);
         }
-        private static void TwitchClient_OnNewSubscriber(object sender, OnNewSubscriberArgs e)
+        private static void StreamElementsClient_OnSubscriber(object sender, StreamElementsNET.Models.Subscriber.Subscriber e, string botId)
         {
-            HandleNewSubscriber((TwitchClient)sender, e);
+            var bot = Bots.Single(_ => _.Id == botId);
+            HandleNewSubscriber(bot, e);
+        }
+        private static void StreamElementsClient_OnAuthenticationFailure(object sender, EventArgs e)
+        {
+            Console.WriteLine($"Failed to login! Invalid JWT token!");
+        }
+        private static void StreamElementsClient_OnAuthenticated(object sender, StreamElementsNET.Models.Internal.Authenticated e)
+        {
+            
+        }
+        private static void StreamElementsClient_OnConnected(object sender, EventArgs e)
+        {
+            
+        }
+        private static void StreamElementsClient_OnReceivedRawMessage(object sender, string e)
+        {
+            Console.WriteLine($"RECEIVED: {e}");
+        }
+        private static void StreamElementsClient_OnSent(object sender, string e)
+        {
+            Console.WriteLine($"SENT: {e}");
         }
         private static async Task HandleTwitchMessageAsync(TwitchClient twitchClient, OnMessageReceivedArgs e)
         {
@@ -230,17 +275,21 @@ namespace Bot_Manager
             }
 
         }
-        private static void HandleNewSubscriber(TwitchClient twitchClient, OnNewSubscriberArgs e)
-        {
-            TwitchBotModel bot = Bots.SingleOrDefault(_ => _.TwitchClient == twitchClient);
-
+        private static void HandleNewSubscriber(TwitchBotModel bot, StreamElementsNET.Models.Subscriber.Subscriber e)
+        {           
             if (bot.Settings.SubMessage.Length == 0) return;
 
-            string username = e.Subscriber.DisplayName;
-            string channel = e.Channel;
-            string userId = e.Subscriber.Id;
+            string channel = bot.Settings.Channel;
 
-            twitchClient.SendMessage(channel, bot.Settings.SubMessage.ToCustomTextWithParameter(e.Subscriber));
+            bot.TwitchClient.SendMessage(channel, bot.Settings.SubMessage.ToCustomTextWithParameter(e));
+        }
+        private static void HandleNewFollower(TwitchBotModel bot, StreamElementsNET.Models.Follower.Follower e)
+        {           
+            if (bot.Settings.SubMessage.Length == 0) return;
+
+            string channel = bot.Settings.Channel;
+
+            bot.TwitchClient.SendMessage(channel, bot.Settings.FollowMessage.ToCustomTextWithParameter(e));            
         }
         private static void HandleCommand(Shares.Enum.ChatCommand chatCommand, ref TwitchClient twitchClient, OnMessageReceivedArgs e)
         {
@@ -284,5 +333,6 @@ namespace Bot_Manager
             if (twitchBot.Settings.GreetMessage.Length == 0) return;
             twitchBot.TwitchClient.SendMessage(chat.Channel, twitchBot.Settings.GreetMessage.ToCustomTextWithParameter(chat));
         }
+
     }
 }
