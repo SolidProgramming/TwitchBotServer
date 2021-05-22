@@ -37,8 +37,7 @@ namespace Bot_Manager
             bot.TwitchClient.OnJoinedChannel += TwitchClient_OnJoinedChannel;
             bot.TwitchClient.OnConnected += TwitchClient_OnConnected;
             bot.TwitchClient.OnConnectionError += TwitchClient_OnConnectionError;
-            bot.TwitchClient.OnMessageReceived += TwitchClient_OnMessageReceived;
-            bot.TwitchClient.OnNewSubscriber += TwitchClient_OnNewSubscriber;
+            bot.TwitchClient.OnMessageReceived += TwitchClient_OnMessageReceived;            
            
             bot.StreamElementsClient.OnConnected += StreamElementsClient_OnConnected;
             bot.StreamElementsClient.OnAuthenticated += StreamElementsClient_OnAuthenticated;
@@ -46,6 +45,7 @@ namespace Bot_Manager
             bot.StreamElementsClient.OnReceivedRawMessage += StreamElementsClient_OnReceivedRawMessage;
             bot.StreamElementsClient.OnSent += StreamElementsClient_OnSent;
             bot.StreamElementsClient.OnFollower += (sender, e) => StreamElementsClient_OnFollower(sender, e, bot.Id);
+            bot.StreamElementsClient.OnSubscriber += (sender, e) => StreamElementsClient_OnSubscriber(sender, e, bot.Id);
 
             bot.TwitchClient.Initialize(credentials, botSetting.Channel);
 
