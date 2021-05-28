@@ -19,6 +19,31 @@
 <body>
     <component type="typeof(App)" render-mode="ServerPrerendered" />
 
+    <environment include="Staging,Production">
+        <div id="components-reconnect-modal" class="my-reconnect-modal components-reconnect-hide">
+            <div class="show failed rejected">
+                <p>
+                    Reconnecting to server...
+                </p>
+            </div>
+        </div>
+    </environment>
+    <environment include="Development">
+        <div id="components-reconnect-modal" class="my-reconnect-modal components-reconnect-hide">
+            <div class="show text-center align-middle">
+                <p>
+                    The Server is now down. You can close this Page.
+                </p>
+            </div>
+            <div class="failed">
+               
+            </div>
+            <div class="rejected">
+                
+            </div>
+        </div>
+    </environment>
+
     <div id="blazor-error-ui">
         <environment include="Staging,Production">
             An error has occurred. This application may no longer respond until reloaded.
