@@ -11,7 +11,8 @@ using System.Threading.Tasks;
 using OBSWebsocketController;
 using System.Text.RegularExpressions;
 using TwitchLib.Api.V5.Models.Users;
-using StreamElementsNET;
+using Shares.Enum;
+
 
 namespace Bot_Manager
 {
@@ -183,7 +184,7 @@ namespace Bot_Manager
         }
         private static void TwitchClient_OnMessageReceived(object sender, OnMessageReceivedArgs e)
         {
-            HandleTwitchMessageAsync((TwitchClient)sender, e).ConfigureAwait(true);
+            HandleTwitchMessageAsync((TwitchClient)sender, e);
         }
         private static void TwitchClient_OnConnectionError(object sender, OnConnectionErrorArgs e)
         {
@@ -228,22 +229,22 @@ namespace Bot_Manager
         {
             Console.WriteLine($"SENT: {e}");
         }
-        private static async Task HandleTwitchMessageAsync(TwitchClient twitchClient, OnMessageReceivedArgs e)
+        private static void HandleTwitchMessageAsync(TwitchClient twitchClient, OnMessageReceivedArgs e)
         {
             string chatterUsername = e.ChatMessage.DisplayName;
             string channelName = e.ChatMessage.Channel;
             string userId = e.ChatMessage.UserId;
-            string chatMessage = e.ChatMessage.Message;
+            string chatMessageText = e.ChatMessage.Message;
 
             var bot = Bots.SingleOrDefault(_ => _.TwitchClient == twitchClient);
 
-            if (!bot.Chatters.Contains(chatterUsername))
+            if (!bot.Chatters.Contains(chatterUsername) && (!e.ChatMessage.IsMe && !e.ChatMessage.IsBroadcaster))
             {
                 bot.Chatters.Add(chatterUsername);
                 GreetChatter(bot, e.ChatMessage);
             }
 
-            if (IsValidUrl(chatMessage))
+            if (IsValidUrl(chatMessageText))
             {
                 if (bot.Settings.ChatLinkAccessibility == ChatLinkAccessibility.Private)
                 {
@@ -260,24 +261,13 @@ namespace Bot_Manager
                     }
                 }
             }
-
-            if (e.ChatMessage.Message.StartsWith("!so"))
-            {
-                string username = e.ChatMessage.Message.Substring(e.ChatMessage.Message.IndexOf(' ') + 1).Replace("@", string.Empty);
-                if (await TwitchUserExistsAsync(bot, username))
-                {
-                    bot.TwitchClient.SendMessage(channelName, $"Hey, check auch www.twitch.tv/{username} aus!");
-                }
-                else
-                {
-                    bot.TwitchClient.SendReply(channelName, userId, "Dieser Benutzer existiert nicht.");
-                }
-            }
+            
+            HandleCommand(ref bot, e.ChatMessage);
 
         }
         private static void HandleNewSubscriber(TwitchBotModel bot, StreamElementsNET.Models.Subscriber.Subscriber e)
         {           
-            if (bot.Settings.SubMessage.Length == 0) return;
+            if (string.IsNullOrEmpty(bot.Settings.SubMessage)) return;
 
             string channel = bot.Settings.Channel;
 
@@ -285,24 +275,52 @@ namespace Bot_Manager
         }
         private static void HandleNewFollower(TwitchBotModel bot, StreamElementsNET.Models.Follower.Follower e)
         {           
-            if (bot.Settings.SubMessage.Length == 0) return;
+            if (string.IsNullOrEmpty(bot.Settings.FollowMessage)) return;
 
             string channel = bot.Settings.Channel;
 
             bot.TwitchClient.SendMessage(channel, bot.Settings.FollowMessage.ToCustomTextWithParameter(e));            
         }
-        private static void HandleCommand(Shares.Enum.ChatCommand chatCommand, ref TwitchClient twitchClient, OnMessageReceivedArgs e)
+        private static void HandleCommand(ref TwitchBotModel bot, ChatMessage chatMessage)
         {
-            //switch (chatCommand)
-            //{
-            //    case ChatCommandModel.none:
-            //        break;
-            //    case ChatCommandModel.wheel:
-            //        TriggerSceneSwitch("WOF");
-            //        break;
-            //    default:
-            //        break;
-            //}
+            Shares.Enum.ChatCommand? chatCommand;
+            string chatMessageText = chatMessage.Message;
+
+            if (chatMessageText.IsCommand(out chatCommand))
+            {                
+                switch (chatCommand)
+                {
+                    case Shares.Enum.ChatCommand.ShoutOut:
+                        HandleShoutout(bot, chatMessage);
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+        private static async void HandleShoutout(TwitchBotModel bot, ChatMessage chatMessage)
+        {
+            if (string.IsNullOrEmpty(bot.Settings.ShoutOutText)) return;
+
+            string channelName = bot.Settings.Channel;
+            string userId = chatMessage.UserId;
+            string username = chatMessage.Username;
+
+            string customUsername = chatMessage.Message.Substring(chatMessage.Message.IndexOf(' ') + 1).Replace("@", string.Empty);
+
+            CustomUserModel customUserModel = new()
+            {
+                Username = customUsername
+            };
+
+            if (await TwitchUserExistsAsync(bot, username))
+            {
+                bot.TwitchClient.SendMessage(channelName, bot.Settings.ShoutOutText.ToCustomTextWithParameter(customUserModel));
+            }
+            else
+            {
+                bot.TwitchClient.SendReply(channelName, userId, "Dieser Benutzer existiert nicht.");
+            }
         }
         private static bool IsValidUrl(string url)
         {

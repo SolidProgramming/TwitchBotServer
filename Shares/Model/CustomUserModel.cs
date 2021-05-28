@@ -4,10 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Shares.Enum
+namespace Shares.Model
 {
-    public enum TextParameter
+    public class CustomUserModel
     {
-        USERNAME
+        public string Username { get; set; }
     }
 }

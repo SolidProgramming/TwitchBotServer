@@ -10,11 +10,27 @@ namespace Shares
 {
     public static class TextChatCommand
     {
-        private static Dictionary <string, ChatCommand> dictChatCommands = new();
+        private static Dictionary<string, ChatCommand> dictChatCommands = new()
+        {
+            {
+                "so",
+                ChatCommand.ShoutOut
+            },
+            {
+                "startstream",
+                ChatCommand.StartStream
+            }
+
+        };
 
         public static List<string> GetTextChatCommands()
         {
             return dictChatCommands.Select(_ => _.Key).ToList();
+        }
+
+        public static ChatCommand GetChatCommandByName(string commandName)
+        {
+            return dictChatCommands.SingleOrDefault(_ => _.Key == commandName).Value;
         }
 
         public static List<string> GetCommandNames()

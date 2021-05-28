@@ -59,9 +59,9 @@
             <div class="row">
                 <div class="col-sm-3">
                     <TextParameterInput Caption="Nachricht bei neuem Chatter"
-                                               InputPlaceholder="Hallo {username}!" @bind-value="BotSetting.GreetMessage">
+                                        InputPlaceholder="Hallo {username}!" @bind-value="BotSetting.GreetMessage">
                         <!--TODO krams-->
-                    </TextParameterInput>                   
+                    </TextParameterInput>
                 </div>
                 <div class="col-sm-3">
                     <label class="font-weight-bold">Nachricht bei Sub</label>
@@ -85,6 +85,13 @@
                 <div class="col-sm-3">
                     <label class="font-weight-bold">Nachricht bei Follow</label>
                     <input class="form-control" placeholder="Danke für den Follow {Username}" @bind-value="@BotSetting.FollowMessage">
+                </div>
+            </div>
+            <br />
+            <div class="row">
+                <div class="col-sm-3">
+                    <label class="font-weight-bold">!SO Text</label>
+                    <input class="form-control" placeholder="Hey check auch www.twitch.tv/{username} aus" @bind-value="@BotSetting.ShoutOutText">
                 </div>
             </div>
             <br />
