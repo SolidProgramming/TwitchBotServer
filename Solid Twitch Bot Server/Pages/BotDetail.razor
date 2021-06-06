@@ -65,33 +65,41 @@
                 </div>
                 <div class="col-sm-3">
                     <label class="font-weight-bold">Nachricht bei Sub</label>
-                    <input class="form-control" placeholder="Danke für dein Sub {username}!" @bind-value="@BotSetting.SubMessage">
+                    <input class="form-control" placeholder="Danke für dein Sub {username}!" @bind-value="@BotSetting.SubMessage" />
                 </div>
                 <div class="col-sm-3">
                     <label class="font-weight-bold">Nachricht bei @@Message</label>
-                    <input class="form-control" placeholder="Mich gibt's gar nicht!" @bind-value="@BotSetting.ChatDMResponse">
+                    <input class="form-control" placeholder="Mich gibt's gar nicht!" @bind-value="@BotSetting.ChatDMResponse" />
                 </div>
             </div>
             <br />
             <div class="row">
                 <div class="col-sm-3">
                     <label class="font-weight-bold">Nachricht bei Channel Beitritt</label>
-                    <input class="form-control" placeholder="Hallo! Ich bin der Bot von diesem Channel!" @bind-value="@BotSetting.ChannelJoinMessage">
+                    <input class="form-control" placeholder="Hallo! Ich bin der Bot von diesem Channel!" @bind-value="@BotSetting.ChannelJoinMessage" />
                 </div>
                 <div class="col-sm-3">
                     <label class="font-weight-bold">Nachricht bei Channel Verlassen</label>
-                    <input class="form-control" placeholder="Bravo six, going dark!" @bind-value="BotSetting.ChannelLeaveMessage">
+                    <input class="form-control" placeholder="Bravo six, going dark!" @bind-value="BotSetting.ChannelLeaveMessage" />
                 </div>
                 <div class="col-sm-3">
                     <label class="font-weight-bold">Nachricht bei Follow</label>
-                    <input class="form-control" placeholder="Danke für den Follow {Username}" @bind-value="@BotSetting.FollowMessage">
+                    <input class="form-control" placeholder="Danke für den Follow {Username}" @bind-value="@BotSetting.FollowMessage" />
                 </div>
             </div>
             <br />
             <div class="row">
                 <div class="col-sm-3">
                     <label class="font-weight-bold">!SO Text</label>
-                    <input class="form-control" placeholder="Hey check auch www.twitch.tv/{username} aus" @bind-value="@BotSetting.ShoutOutText">
+                    <input class="form-control" placeholder="Hey check auch www.twitch.tv/{username} aus" @bind-value="@BotSetting.ShoutOutText" />
+                </div>
+                <div class="col-sm-3">
+                    <label class="font-weight-bold">Nachricht bei TIP/Donation</label>
+                    <input class="form-control" placeholder="Danke für deine Donation/Tip! {username}" @bind-value="@BotSetting.DonationMessage" />
+                </div>
+                <div class="col-sm-3">
+                    <label class="font-weight-bold">Nachricht bei Cheer</label>
+                    <input class="form-control" placeholder="Danke für den Cheer! {username}" @bind-value="@BotSetting.CheerMessage" />
                 </div>
             </div>
             <br />
@@ -109,13 +117,13 @@
                     <label class="font-weight-bold">Links</label>
                     <label>Wer darf Links posten?</label>
                     <div class="form-check form-control-lg">
-                        <input class="form-check-input" type="radio" name="LinkRadioGroup" id="LinkAccessRadio1" checked="@(ChatLinkAccessibility == ChatLinkAccessibility.Public)" @onchange="@(e => OnChatLinkAccessibilityChanged(0))">
+                        <input class="form-check-input" type="radio" name="LinkRadioGroup" id="LinkAccessRadio1" checked="@(ChatLinkAccessibility == ChatLinkAccessibility.Public)" @onchange="@(e => OnChatLinkAccessibilityChanged(0))" />
                         <label class="form-check-label" for="LinkAccessRadio1">
                             Öffentlich
                         </label>
                     </div>
                     <div class="form-check form-control-lg">
-                        <input class="form-check-input" type="radio" name="LinkRadioGroup" id="LinkAccessRadio2" checked="@(ChatLinkAccessibility == ChatLinkAccessibility.Private)" @onchange="@(e => OnChatLinkAccessibilityChanged(1))">
+                        <input class="form-check-input" type="radio" name="LinkRadioGroup" id="LinkAccessRadio2" checked="@(ChatLinkAccessibility == ChatLinkAccessibility.Private)" @onchange="@(e => OnChatLinkAccessibilityChanged(1))" />
                         <label class="form-check-label" for="LinkAccessRadio2">
                             Privat/Mods
                         </label>
@@ -124,15 +132,21 @@
                 <div class="col-sm-2">
                     <label class="font-weight-bold">Handlung beim unautorisierten Posten von Links</label>
                     <div class="form-check">
-                        <input class="form-check-input" type="radio" name="ActionRadioGroup" id="ActionRadio1" checked="@(ChatLinkAction == ChatLinkAction.DeleteMessage)">
+                        <input class="form-check-input" type="radio" name="ActionRadioGroup" id="ActionRadio1" checked="@(ChatLinkAction == ChatLinkAction.DeleteMessage)" />
                         <label class="form-check-label" for="ActionRadio1">
                             Nachricht löschen
                         </label>
                     </div>
                     <div class="form-check">
-                        <input class="form-check-input" type="radio" name="ActionRadioGroup" id="ActionRadio2" checked="@(ChatLinkAction == ChatLinkAction.BanUser)">
+                        <input class="form-check-input" type="radio" name="ActionRadioGroup" id="ActionRadio2" checked="@(ChatLinkAction == ChatLinkAction.BanUser)" />
                         <label class="form-check-label" for="ActionRadio2">
                             Nutzer sperren
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="ActionRadioGroup" id="ActionRadio3" checked="@(ChatLinkAction == ChatLinkAction.Warning)" />
+                        <label class="form-check-label" for="ActionRadio3">
+                            Verwarnen
                         </label>
                     </div>
                 </div>
@@ -256,10 +270,12 @@
         BotSetting = BotService.GetBotSettings(Id);
 
         ChatLinkAccessibility = BotSetting.ChatLinkAccessibility;
+        ChatLinkAction = BotSetting.ChatLinkAction;
     }
 
     private void Submit()
     {
+        BotSetting.ChatLinkAction = ChatLinkAction;
         BotService.SaveBotsSettings();
     }
 

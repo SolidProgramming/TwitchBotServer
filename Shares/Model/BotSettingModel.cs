@@ -18,6 +18,8 @@ namespace Shares.Model
         public string ChannelLeaveMessage { get; set; }
         public string GreetMessage { get; set; }
         public string ShoutOutText { get; set; }
+        public string DonationMessage { get; set; }
+        public string CheerMessage { get; set; }
         public List<SceneModel> Scenes { get; set; } = new List<SceneModel>();
         public List<ChatCommandModel> ChatCommands { get; set; } = new List<ChatCommandModel>();
         public ChatLinkAccessibility ChatLinkAccessibility { get; set; } = ChatLinkAccessibility.Public;

@@ -6,6 +6,8 @@ using System.Threading.Tasks;
 using Shares.Enum;
 using Shares.Model;
 using StreamElementsNET.Models.Follower;
+using StreamElementsNET.Models.Tip;
+using StreamElementsNET.Models.Cheer;
 using TwitchLib.Client.Enums.Internal;
 using TwitchLib.Client.Events;
 using TwitchLib.Client.Models;
@@ -22,8 +24,25 @@ namespace Shares
                 {
                     { typeof(Subscriber), "DisplayName" },
                     { typeof(ChatMessage), "DisplayName" },
-                    { typeof(Follower), "DisplayName"},
-                    { typeof(CustomUserModel), "Username" }
+                    { typeof(Follower), "DisplayName" },
+                    { typeof(CustomUserModel), "Username" },
+                    { typeof(Tip), "Username" },
+                    { typeof(Cheer), "Username"}
+                }
+            },
+            {
+                "{amount}",
+                new()
+                {
+                    { typeof(Tip), "Amount" },
+                    { typeof(Cheer), "Amount"}
+                }
+            },
+            {
+                "{currency}",
+                new()
+                {
+                    { typeof(Tip), "Currency" }
                 }
             }
         };
@@ -39,11 +58,12 @@ namespace Shares
                 if (customText.Contains(paramToChange))
                 {
                     string propName = parameter.Value[obj.GetType()].ToString();
-                    changedParam = obj.GetType().GetProperty(propName).GetValue(obj, null);
+                    changedParam = obj.GetType().GetProperty(propName).GetValue(obj, null).ToString();
+                    customText = customText.Replace(paramToChange, changedParam);
                 }
             }
 
-            return customText.Replace(paramToChange, changedParam);
+            return customText;
         }
     }
 }

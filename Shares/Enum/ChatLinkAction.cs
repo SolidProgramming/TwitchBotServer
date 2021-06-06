@@ -9,6 +9,7 @@ namespace Shares.Enum
     public enum ChatLinkAction
     {
         BanUser,
-        DeleteMessage
+        DeleteMessage,
+        Warning
     }
 }
