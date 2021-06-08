@@ -10,7 +10,7 @@ namespace Shares
 {
     public static class Encryption
     {
-        private static string passPhrase = "64fI12d6tOD9";
+        private static string passPhrase = "64fI12d6tOD1";
 
         // This constant is used to determine the keysize of the encryption algorithm in bits.
         // We divide this by 8 within the code below to get the equivalent number of bytes.
