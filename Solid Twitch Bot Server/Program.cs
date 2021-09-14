@@ -20,7 +20,8 @@ namespace Solid_Twitch_Bot_Server
         private static string[] _args = new string[1];
 
         public static void Main(string[] args)
-        {
+        {           
+
             if (Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER") != "true" && AnotherInstanceExists())
             {
                 string processName = Process.GetCurrentProcess().ProcessName;

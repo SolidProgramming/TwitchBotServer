@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 using OBSWebsocketController;
 using System.Text.RegularExpressions;
 using TwitchLib.Api.V5.Models.Users;
-using Shares.Enum;
+using PhilipsHueController;
 using StreamElementsNET.Models.Cheer;
 
 namespace Bot_Manager
@@ -38,8 +38,8 @@ namespace Bot_Manager
             bot.TwitchClient.OnJoinedChannel += TwitchClient_OnJoinedChannel;
             bot.TwitchClient.OnConnected += TwitchClient_OnConnected;
             bot.TwitchClient.OnConnectionError += TwitchClient_OnConnectionError;
-            bot.TwitchClient.OnMessageReceived += TwitchClient_OnMessageReceived;            
-           
+            bot.TwitchClient.OnMessageReceived += TwitchClient_OnMessageReceived;
+
             bot.StreamElementsClient.OnConnected += StreamElementsClient_OnConnected;
             bot.StreamElementsClient.OnAuthenticated += StreamElementsClient_OnAuthenticated;
             bot.StreamElementsClient.OnAuthenticationFailure += StreamElementsClient_OnAuthenticationFailure;
@@ -86,7 +86,7 @@ namespace Bot_Manager
             bot.StreamElementsClient.OnReceivedRawMessage += StreamElementsClient_OnReceivedRawMessage;
             bot.StreamElementsClient.OnSent += StreamElementsClient_OnSent;
             bot.StreamElementsClient.OnSubscriber += (sender, e) => StreamElementsClient_OnSubscriber(sender, e, bot.Id);
-            bot.StreamElementsClient.OnTip += (sender,e) => StreamElementsClient_OnTip(sender, e, bot.Id);
+            bot.StreamElementsClient.OnTip += (sender, e) => StreamElementsClient_OnTip(sender, e, bot.Id);
             bot.StreamElementsClient.OnCheer += (sender, e) => StreamElementsClient_OnCheer(sender, e, bot.Id);
 
             Bots.Add(bot);
@@ -202,9 +202,9 @@ namespace Bot_Manager
         {
             var bot = Bots.SingleOrDefault(_ => _.TwitchClient == (TwitchClient)sender);
             bot.TwitchClient.SendMessage(e.Channel, bot.Settings.ChannelJoinMessage);
-        }        
+        }
         private static void StreamElementsClient_OnFollower(object sender, StreamElementsNET.Models.Follower.Follower e, string botId)
-        {           
+        {
             var bot = Bots.Single(_ => _.Id == botId);
             HandleNewFollower(bot, e);
         }
@@ -229,11 +229,11 @@ namespace Bot_Manager
         }
         private static void StreamElementsClient_OnAuthenticated(object sender, StreamElementsNET.Models.Internal.Authenticated e)
         {
-            
+
         }
         private static void StreamElementsClient_OnConnected(object sender, EventArgs e)
         {
-            
+
         }
         private static void StreamElementsClient_OnReceivedRawMessage(object sender, string e)
         {
@@ -263,7 +263,7 @@ namespace Bot_Manager
 
         }
         private static void HandleNewSubscriber(TwitchBotModel bot, StreamElementsNET.Models.Subscriber.Subscriber e)
-        {           
+        {
             if (string.IsNullOrWhiteSpace(bot.Settings.SubMessage)) return;
 
             string channel = bot.Settings.Channel;
@@ -271,19 +271,19 @@ namespace Bot_Manager
             bot.TwitchClient.SendMessage(channel, bot.Settings.SubMessage.ToCustomTextWithParameter(e));
         }
         private static void HandleNewFollower(TwitchBotModel bot, StreamElementsNET.Models.Follower.Follower e)
-        {           
+        {
             if (string.IsNullOrWhiteSpace(bot.Settings.FollowMessage)) return;
 
             string channel = bot.Settings.Channel;
 
-            bot.TwitchClient.SendMessage(channel, bot.Settings.FollowMessage.ToCustomTextWithParameter(e));            
+            bot.TwitchClient.SendMessage(channel, bot.Settings.FollowMessage.ToCustomTextWithParameter(e));
         }
         private static void HandleNewTip(TwitchBotModel bot, StreamElementsNET.Models.Tip.Tip e)
         {
             if (string.IsNullOrWhiteSpace(bot.Settings.DonationMessage)) return;
 
             string channel = bot.Settings.Channel;
-            
+
             bot.TwitchClient.SendMessage(channel, bot.Settings.DonationMessage.ToCustomTextWithParameter(e));
         }
         private static void HandleNewCheer(TwitchBotModel bot, Cheer e)
@@ -300,7 +300,7 @@ namespace Bot_Manager
             string chatMessageText = chatMessage.Message;
 
             if (chatMessageText.IsCommand(out chatCommand))
-            {                
+            {
                 switch (chatCommand)
                 {
                     case Shares.Enum.ChatCommand.ShoutOut:
@@ -338,7 +338,7 @@ namespace Bot_Manager
         private static void HandleLinkPosting(ref TwitchBotModel bot, ChatMessage chatMessage)
         {
             string chatterUsername = chatMessage.DisplayName;
-            string channelName = chatMessage.Channel;            
+            string channelName = chatMessage.Channel;
             string chatMessageText = chatMessage.Message;
 
             if (IsValidUrl(chatMessageText))
@@ -399,6 +399,18 @@ namespace Bot_Manager
         {
             if (twitchBot.Settings.GreetMessage.Length == 0) return;
             twitchBot.TwitchClient.SendMessage(chat.Channel, twitchBot.Settings.GreetMessage.ToCustomTextWithParameter(chat));
+        }
+
+        public static async Task TestPhilipsHueController()
+        {
+            PhilipsHueControllerClient hueClient = new()
+            {
+                AppName = "",
+                DeviceName = ""
+            };
+
+            await hueClient.RegisterClient("127.0.0.1", PhilipsHueBridgeLocatorType.LocalNetworkScanBridgeLocator);
+
         }
 
     }
