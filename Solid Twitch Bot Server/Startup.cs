@@ -97,9 +97,12 @@ namespace Solid_Twitch_Bot_Server
 
             if (Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER") != "true")
             {
-                OpenBrowser(HostAdresses[0]);
+                OpenBrowser(HostAdresses[0]);                
             }
 
+            string test = Environment.GetEnvironmentVariable("Configs Folder Path");
+
+            Console.WriteLine(test);
         }
     }
 }

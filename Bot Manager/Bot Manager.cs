@@ -50,10 +50,13 @@ namespace Bot_Manager
             bot.StreamElementsClient.OnTip += (sender, e) => StreamElementsClient_OnTip(sender, e, bot.Id);
             bot.StreamElementsClient.OnCheer += (sender, e) => StreamElementsClient_OnCheer(sender, e, bot.Id);
 
-            bot.TwitchClient.Initialize(credentials, botSetting.Channel);
+            bot.TwitchAPI.V5.Settings.AccessToken = bot.Settings.TwitchOAuth;
+            bot.TwitchAPI.V5.Settings.ClientId = bot.Settings.TwitchClientId;
 
-            bot.TwitchAPI.Settings.AccessToken = bot.Settings.TwitchClientId;
+            bot.TwitchAPI.Settings.AccessToken = bot.Settings.TwitchOAuth;
             bot.TwitchAPI.Settings.ClientId = bot.Settings.TwitchClientId;
+
+            bot.TwitchClient.Initialize(credentials, botSetting.Channel);           
 
             Bots.Add(bot);
 
@@ -77,8 +80,6 @@ namespace Bot_Manager
             bot.TwitchClient.OnConnectionError += TwitchClient_OnConnectionError;
             bot.TwitchClient.OnMessageReceived += TwitchClient_OnMessageReceived;
 
-            bot.TwitchClient.Initialize(credentials, bot.Settings.Channel);
-
             bot.StreamElementsClient.OnConnected += StreamElementsClient_OnConnected;
             bot.StreamElementsClient.OnFollower += (sender, e) => StreamElementsClient_OnFollower(sender, e, bot.Id);
             bot.StreamElementsClient.OnAuthenticated += StreamElementsClient_OnAuthenticated;
@@ -88,6 +89,14 @@ namespace Bot_Manager
             bot.StreamElementsClient.OnSubscriber += (sender, e) => StreamElementsClient_OnSubscriber(sender, e, bot.Id);
             bot.StreamElementsClient.OnTip += (sender, e) => StreamElementsClient_OnTip(sender, e, bot.Id);
             bot.StreamElementsClient.OnCheer += (sender, e) => StreamElementsClient_OnCheer(sender, e, bot.Id);
+
+            bot.TwitchAPI.V5.Settings.AccessToken = bot.Settings.TwitchOAuth;
+            bot.TwitchAPI.V5.Settings.ClientId = bot.Settings.TwitchClientId;
+
+            bot.TwitchAPI.Settings.AccessToken = bot.Settings.TwitchOAuth;
+            bot.TwitchAPI.Settings.ClientId = bot.Settings.TwitchClientId;
+
+            bot.TwitchClient.Initialize(credentials, bot.Settings.Channel);
 
             Bots.Add(bot);
 
@@ -229,7 +238,7 @@ namespace Bot_Manager
         }
         private static void StreamElementsClient_OnAuthenticated(object sender, StreamElementsNET.Models.Internal.Authenticated e)
         {
-
+            Console.WriteLine($"AUTHENTICATED: {e.ChannelId}");
         }
         private static void StreamElementsClient_OnConnected(object sender, EventArgs e)
         {
@@ -326,7 +335,7 @@ namespace Bot_Manager
                 Username = customUsername
             };
 
-            if (await TwitchUserExistsAsync(bot, username))
+            if (await TwitchUserExistsAsync(bot, customUserModel.Username))
             {
                 bot.TwitchClient.SendMessage(channelName, bot.Settings.ShoutOutText.ToCustomTextWithParameter(customUserModel));
             }
@@ -388,7 +397,7 @@ namespace Bot_Manager
         }
         private static async Task<bool> TwitchUserExistsAsync(TwitchBotModel twitchBot, string username)
         {
-            Users user = await twitchBot.TwitchAPI.V5.Users.GetUserByNameAsync(username).ConfigureAwait(true);
+            Users user = await twitchBot.TwitchAPI.V5.Users.GetUserByNameAsync(username);
 
             if (user.Total > 0)
                 return true;
@@ -400,7 +409,6 @@ namespace Bot_Manager
             if (twitchBot.Settings.GreetMessage.Length == 0) return;
             twitchBot.TwitchClient.SendMessage(chat.Channel, twitchBot.Settings.GreetMessage.ToCustomTextWithParameter(chat));
         }
-
         public static async Task TestPhilipsHueController()
         {
             PhilipsHueControllerClient hueClient = new()
