@@ -24,6 +24,7 @@ namespace PhilipsHueController
             ILocalHueClient client = new LocalHueClient(bridgeIp);
 
             string appKey = await client.RegisterAsync("mypersonalappname", "mydevicename");
+
             //bridges = await HueBridgeDiscovery.CompleteDiscoveryAsync(TimeSpan.FromSeconds(5), TimeSpan.FromSeconds(30));
             //bridges = await HueBridgeDiscovery.FastDiscoveryWithNetworkScanFallbackAsync(TimeSpan.FromSeconds(5), TimeSpan.FromSeconds(30));
         }
