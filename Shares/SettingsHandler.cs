@@ -14,7 +14,7 @@ namespace Shares
 {
     public static class SettingsHandler
     {
-        private static readonly string savePathDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "SolidProgramming", "Twitch Bot Server");
+        private static readonly string savePathDirectory = GetBasePath();
         private static readonly string BotSettingsFilePath = Path.Combine(savePathDirectory, "BotSettings");
         private static readonly string OBSSettingsFilePath = Path.Combine(savePathDirectory, "OBSSettings");
         private static readonly string ChatCommandsFilePath = Path.Combine(savePathDirectory, "ChatCommands");
@@ -71,10 +71,22 @@ namespace Shares
             {
                 Log.Fatal($"Could not save settings for {fileType}", "Settings");
             }
-        }
+        }  
         private static void CheckDirectoryExists()
-        {
+        {            
             if (!Directory.Exists(savePathDirectory)) Directory.CreateDirectory(savePathDirectory);
+        }
+
+        private static string GetBasePath()
+        {
+            if (Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER") == "true")
+            {                
+                return Path.Combine(Directory.GetCurrentDirectory(), "appdata");
+            }
+            else
+            {               
+                return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "SolidProgramming", "Twitch Bot Server");
+            }
         }
 
     }
