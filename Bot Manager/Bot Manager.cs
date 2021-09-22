@@ -13,6 +13,7 @@ using System.Text.RegularExpressions;
 using TwitchLib.Api.V5.Models.Users;
 using PhilipsHueController;
 using StreamElementsNET.Models.Cheer;
+using TwitchLib.Api.Helix.Models.Users.GetUsers;
 
 namespace Bot_Manager
 {
@@ -56,6 +57,9 @@ namespace Bot_Manager
             bot.TwitchAPI.Settings.AccessToken = bot.Settings.TwitchOAuth;
             bot.TwitchAPI.Settings.ClientId = bot.Settings.TwitchClientId;
 
+            bot.TwitchAPI.Helix.Settings.AccessToken = bot.Settings.TwitchOAuth;
+            bot.TwitchAPI.Helix.Settings.ClientId = bot.Settings.TwitchClientId;
+
             bot.TwitchClient.Initialize(credentials, botSetting.Channel);           
 
             Bots.Add(bot);
@@ -95,6 +99,9 @@ namespace Bot_Manager
 
             bot.TwitchAPI.Settings.AccessToken = bot.Settings.TwitchOAuth;
             bot.TwitchAPI.Settings.ClientId = bot.Settings.TwitchClientId;
+
+            bot.TwitchAPI.Helix.Settings.AccessToken = bot.Settings.TwitchOAuth;
+            bot.TwitchAPI.Helix.Settings.ClientId = bot.Settings.TwitchClientId;
 
             bot.TwitchClient.Initialize(credentials, bot.Settings.Channel);
 
@@ -262,11 +269,15 @@ namespace Bot_Manager
 
             var bot = Bots.SingleOrDefault(_ => _.TwitchClient == twitchClient);
 
-            if (!bot.Chatters.Contains(chatterUsername) && (!e.ChatMessage.IsMe && !e.ChatMessage.IsBroadcaster))
+            if (!string.IsNullOrEmpty(bot.Settings.GreetMessage))
             {
-                bot.Chatters.Add(chatterUsername);
-                GreetChatter(bot, e.ChatMessage);
-            }
+                if (!bot.Chatters.Contains(chatterUsername) && (!e.ChatMessage.IsMe && !e.ChatMessage.IsBroadcaster))
+                {
+                    bot.Chatters.Add(chatterUsername);
+                    GreetChatter(bot, e.ChatMessage);
+                }
+            }           
+
             HandleLinkPosting(ref bot, e.ChatMessage);
             HandleCommand(ref bot, e.ChatMessage);
 
@@ -396,9 +407,11 @@ namespace Bot_Manager
         }
         private static async Task<bool> TwitchUserExistsAsync(TwitchBotModel twitchBot, string username)
         {
-            Users user = await twitchBot.TwitchAPI.V5.Users.GetUserByNameAsync(username);
+            //V5 deprecated
+            //Users user = await twitchBot.TwitchAPI.V5.Users.GetUserByNameAsync(username);
+            GetUsersResponse user =  await twitchBot.TwitchAPI.Helix.Users.GetUsersAsync(logins: new() { username });
 
-            if (user.Total > 0)
+            if (user.Users.Length > 0)
                 return true;
 
             return false;
