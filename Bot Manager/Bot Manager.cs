@@ -51,8 +51,8 @@ namespace Bot_Manager
             bot.StreamElementsClient.OnTip += (sender, e) => StreamElementsClient_OnTip(sender, e, bot.Id);
             bot.StreamElementsClient.OnCheer += (sender, e) => StreamElementsClient_OnCheer(sender, e, bot.Id);
 
-            bot.TwitchAPI.V5.Settings.AccessToken = bot.Settings.TwitchOAuth;
-            bot.TwitchAPI.V5.Settings.ClientId = bot.Settings.TwitchClientId;
+            //bot.TwitchAPI.V5.Settings.AccessToken = bot.Settings.TwitchOAuth;
+            //bot.TwitchAPI.V5.Settings.ClientId = bot.Settings.TwitchClientId;
 
             bot.TwitchAPI.Settings.AccessToken = bot.Settings.TwitchOAuth;
             bot.TwitchAPI.Settings.ClientId = bot.Settings.TwitchClientId;
@@ -94,8 +94,8 @@ namespace Bot_Manager
             bot.StreamElementsClient.OnTip += (sender, e) => StreamElementsClient_OnTip(sender, e, bot.Id);
             bot.StreamElementsClient.OnCheer += (sender, e) => StreamElementsClient_OnCheer(sender, e, bot.Id);
 
-            bot.TwitchAPI.V5.Settings.AccessToken = bot.Settings.TwitchOAuth;
-            bot.TwitchAPI.V5.Settings.ClientId = bot.Settings.TwitchClientId;
+            //bot.TwitchAPI.V5.Settings.AccessToken = bot.Settings.TwitchOAuth;
+            //bot.TwitchAPI.V5.Settings.ClientId = bot.Settings.TwitchClientId;
 
             bot.TwitchAPI.Settings.AccessToken = bot.Settings.TwitchOAuth;
             bot.TwitchAPI.Settings.ClientId = bot.Settings.TwitchClientId;
