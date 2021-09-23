@@ -338,7 +338,7 @@ namespace Bot_Manager
             string userId = chatMessage.UserId;
             string username = chatMessage.Username;
 
-            string customUsername = chatMessage.Message[(chatMessage.Message.IndexOf(' ') + 1)..].Replace("@", string.Empty);
+            string customUsername = chatMessage.Message.Substring(chatMessage.Message.IndexOf(' ') + 1).Replace("@", string.Empty);
 
             CustomUserModel customUserModel = new()
             {
