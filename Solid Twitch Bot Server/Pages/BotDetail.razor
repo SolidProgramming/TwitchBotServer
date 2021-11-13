@@ -27,19 +27,19 @@
                     <input class="form-control" @bind-value="@BotSetting.TwitchOAuth">
                 </div>
                 <div class="col-sm-4">
-                    <label class="font-weight-bold">Twitch Client Id(dev.twitch.tv/console/apps)</label>
+                    <label class="font-weight-bold">Twitch Client Id</label><label class="ml-1">(dev.twitch.tv/console/apps)</label>
                     <input class="form-control" @bind-value="@BotSetting.TwitchClientId">
                 </div>
             </div>
             <br />
-            @*<div class="row">
+            <div class="row">
                 <div class="col-lg-11">
                     <label class="font-weight-bold">Streamelements JWT</label>
                     <input class="form-control" @bind-value="@BotSetting.StreamelementsJWT">
                 </div>
-            </div>*@ 
-            @*<br />
-                    <div class="row">
+            </div> 
+            <br />
+                   @* <div class="row">
                         <div class="col-sm-2">
                             <label class="font-weight-bold">Erlaubte Nachrichten im Zeitraum</label>
                             <input class="form-control" @bind-value="@BotSetting.MessagesAllowedInPeriod">
@@ -52,7 +52,7 @@
                         </div>
                     </div>
                     <hr />
-                </div> *@
+                </div>*@
         </div>
         <hr />
         <div class="container-fluid">
@@ -100,6 +100,13 @@
                 <div class="col-sm-3">
                     <label class="font-weight-bold">Nachricht bei Cheer</label>
                     <input class="form-control" placeholder="Danke für den Cheer! {username}" @bind-value="@BotSetting.CheerMessage" />
+                </div>
+            </div>
+            <br />
+            <div class="row">
+                <div class="col-md-6">
+                    <label class="font-weight-bold">Nachricht bei Raid/Host</label>
+                    <input class="form-control" placeholder="Danke für den Raid/Host {username}! Es wurde {game} gestreamt." @bind-value="@BotSetting.RaidHostMessage" />
                 </div>
             </div>
             <br />

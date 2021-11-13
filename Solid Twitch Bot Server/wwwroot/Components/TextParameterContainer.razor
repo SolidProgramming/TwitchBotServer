@@ -4,7 +4,7 @@
 <div class="border rounded pt-2 pl-1 pr-1 pb-2">
     @foreach (TextParameterModel textParameter in TextParameters)
     {
-        <TextParameter TextParameterModel="textParameter"></TextParameter>
+            <TextParameter TextParameterModel="textParameter"></TextParameter>
     }
 </div>
 
@@ -16,24 +16,29 @@
     {
         TextParameters.Add(
             new()
-            {
-                Value = "Username"
-            });
+                {
+                    Value = "Username"
+                });
 
         TextParameters.Add(
             new()
-            {
-                Value = "Channel"
-            });
+                {
+                    Value = "Channel"
+                });
         TextParameters.Add(
             new()
-            {
-                Value = "SubCount"
-            });
+                {
+                    Value = "SubCount"
+                });
         TextParameters.Add(
             new()
+                {
+                    Value = "SubMonthCount"
+                });
+            TextParameters.Add(
+            new()
             {
-                Value = "SubMonthCount"
+                Value = "Game"
             });
     }
 }

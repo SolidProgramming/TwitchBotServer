@@ -11,6 +11,7 @@ using StreamElementsNET.Models.Cheer;
 using TwitchLib.Client.Enums.Internal;
 using TwitchLib.Client.Events;
 using TwitchLib.Client.Models;
+using StreamElementsNET.Models.Host;
 
 namespace Shares
 {
@@ -43,6 +44,13 @@ namespace Shares
                 new()
                 {
                     { typeof(Tip), "Currency" }
+                }
+            },
+            {
+                "{game}",
+                new()
+                {
+                    { typeof(Host), "Game"}
                 }
             }
         };

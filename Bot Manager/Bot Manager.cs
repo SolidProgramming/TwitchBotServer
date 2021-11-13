@@ -14,6 +14,8 @@ using TwitchLib.Api.V5.Models.Users;
 using PhilipsHueController;
 using StreamElementsNET.Models.Cheer;
 using TwitchLib.Api.Helix.Models.Users.GetUsers;
+using StreamElementsNET.Models.Host;
+using System.Security.Cryptography;
 
 namespace Bot_Manager
 {
@@ -50,6 +52,7 @@ namespace Bot_Manager
             bot.StreamElementsClient.OnSubscriber += (sender, e) => StreamElementsClient_OnSubscriber(sender, e, bot.Id);
             bot.StreamElementsClient.OnTip += (sender, e) => StreamElementsClient_OnTip(sender, e, bot.Id);
             bot.StreamElementsClient.OnCheer += (sender, e) => StreamElementsClient_OnCheer(sender, e, bot.Id);
+            bot.StreamElementsClient.OnHost += (sender, e) => StreamElementsClient_OnHost(sender, e, bot.Id);
 
             //bot.TwitchAPI.V5.Settings.AccessToken = bot.Settings.TwitchOAuth;
             //bot.TwitchAPI.V5.Settings.ClientId = bot.Settings.TwitchClientId;
@@ -83,6 +86,7 @@ namespace Bot_Manager
             bot.TwitchClient.OnConnected += TwitchClient_OnConnected;
             bot.TwitchClient.OnConnectionError += TwitchClient_OnConnectionError;
             bot.TwitchClient.OnMessageReceived += TwitchClient_OnMessageReceived;
+            bot.TwitchClient.OnBeingHosted += (sender, e) => TwitchClient_OnBeingHosted(sender, e, bot.Id);
 
             bot.StreamElementsClient.OnConnected += StreamElementsClient_OnConnected;
             bot.StreamElementsClient.OnFollower += (sender, e) => StreamElementsClient_OnFollower(sender, e, bot.Id);
@@ -111,6 +115,20 @@ namespace Bot_Manager
 
             return bot;
         }
+
+        private static void TwitchClient_OnBeingHosted(object sender, OnBeingHostedArgs e, string botId)
+        {
+            TwitchBotModel bot = Bots.Single(_ => _.Id == botId);
+            HandleHost(e, bot);
+        }
+
+        private static void HandleHost(OnBeingHostedArgs e, TwitchBotModel bot)
+        {
+            if (string.IsNullOrEmpty(bot.Settings.RaidHostMessage)) return;
+
+            Console.WriteLine(e.BeingHostedNotification.HostedByChannel);
+        }
+
         public static TwitchBotModel GetBot(string id)
         {
             return Bots.SingleOrDefault(_ => _.Id == id);
@@ -258,7 +276,7 @@ namespace Bot_Manager
         private static void StreamElementsClient_OnSent(object sender, string e)
         {
             Console.WriteLine($"SENT: {e}");
-        }
+        }       
         private static void HandleTwitchMessageAsync(TwitchClient twitchClient, OnMessageReceivedArgs e)
         {
             //TODO: refactor
