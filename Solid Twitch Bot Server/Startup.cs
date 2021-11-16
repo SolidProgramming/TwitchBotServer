@@ -99,10 +99,6 @@ namespace Solid_Twitch_Bot_Server
             {
                 OpenBrowser(HostAdresses[0]);                
             }
-
-            string test = Environment.GetEnvironmentVariable("Configs Folder Path");
-
-            Console.WriteLine(test);
         }
     }
 }

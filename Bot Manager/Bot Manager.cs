@@ -42,6 +42,7 @@ namespace Bot_Manager
             bot.TwitchClient.OnConnected += TwitchClient_OnConnected;
             bot.TwitchClient.OnConnectionError += TwitchClient_OnConnectionError;
             bot.TwitchClient.OnMessageReceived += TwitchClient_OnMessageReceived;
+            bot.TwitchClient.OnBeingHosted += (sender, e) => TwitchClient_OnBeingHosted(sender, e, bot.Id);
 
             bot.StreamElementsClient.OnConnected += StreamElementsClient_OnConnected;
             bot.StreamElementsClient.OnAuthenticated += StreamElementsClient_OnAuthenticated;
@@ -52,7 +53,6 @@ namespace Bot_Manager
             bot.StreamElementsClient.OnSubscriber += (sender, e) => StreamElementsClient_OnSubscriber(sender, e, bot.Id);
             bot.StreamElementsClient.OnTip += (sender, e) => StreamElementsClient_OnTip(sender, e, bot.Id);
             bot.StreamElementsClient.OnCheer += (sender, e) => StreamElementsClient_OnCheer(sender, e, bot.Id);
-            bot.StreamElementsClient.OnHost += (sender, e) => StreamElementsClient_OnHost(sender, e, bot.Id);
 
             //bot.TwitchAPI.V5.Settings.AccessToken = bot.Settings.TwitchOAuth;
             //bot.TwitchAPI.V5.Settings.ClientId = bot.Settings.TwitchClientId;
@@ -114,21 +114,7 @@ namespace Bot_Manager
             SettingsHandler.SaveSettings(Bots.Select(_ => _.Settings).ToList(), FileType.BotSettings);
 
             return bot;
-        }
-
-        private static void TwitchClient_OnBeingHosted(object sender, OnBeingHostedArgs e, string botId)
-        {
-            TwitchBotModel bot = Bots.Single(_ => _.Id == botId);
-            HandleHost(e, bot);
-        }
-
-        private static void HandleHost(OnBeingHostedArgs e, TwitchBotModel bot)
-        {
-            if (string.IsNullOrEmpty(bot.Settings.RaidHostMessage)) return;
-
-            Console.WriteLine(e.BeingHostedNotification.HostedByChannel);
-        }
-
+        }    
         public static TwitchBotModel GetBot(string id)
         {
             return Bots.SingleOrDefault(_ => _.Id == id);
@@ -148,7 +134,7 @@ namespace Bot_Manager
         }
         public static void SaveBotsSettings(List<TwitchBotModel> bots)
         {
-            SettingsHandler.SaveSettings(bots.Select(_ => _.Settings).ToList(), Shares.Enum.FileType.BotSettings);
+            SettingsHandler.SaveSettings(bots.Select(_ => _.Settings).ToList(), FileType.BotSettings);
         }
         public static void SetBotSettings(string id, BotSettingModel botSetting)
         {
@@ -158,7 +144,7 @@ namespace Bot_Manager
         }
         public static List<TwitchBotModel> ReadBotSettings()
         {
-            List<BotSettingModel> tempSettings = SettingsHandler.LoadSettings<List<BotSettingModel>>(Shares.Enum.FileType.BotSettings);
+            List<BotSettingModel> tempSettings = SettingsHandler.LoadSettings<List<BotSettingModel>>(FileType.BotSettings);
 
             Bots.Clear();
 
@@ -276,7 +262,18 @@ namespace Bot_Manager
         private static void StreamElementsClient_OnSent(object sender, string e)
         {
             Console.WriteLine($"SENT: {e}");
-        }       
+        }
+        private static void TwitchClient_OnBeingHosted(object sender, OnBeingHostedArgs e, string botId)
+        {
+            TwitchBotModel bot = Bots.Single(_ => _.Id == botId);
+            HandleHost(e, bot);
+        }
+        private static void HandleHost(OnBeingHostedArgs e, TwitchBotModel bot)
+        {
+            if (string.IsNullOrEmpty(bot.Settings.RaidHostMessage)) return;
+
+            //bot.TwitchClient.SendMessage(bot.Settings.Channel, bot.Settings.RaidHostMessage.ToCustomTextWithParameter(e.BeingHostedNotification));
+        }
         private static void HandleTwitchMessageAsync(TwitchClient twitchClient, OnMessageReceivedArgs e)
         {
             //TODO: refactor

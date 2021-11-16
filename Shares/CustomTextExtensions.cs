@@ -47,26 +47,23 @@ namespace Shares
                 }
             },
             {
-                "{game}",
+                "{channel}",
                 new()
                 {
-                    { typeof(Host), "Game"}
+                    { typeof(OnBeingHostedArgs), "Channel"}
                 }
             }
         };
 
         public static string ToCustomTextWithParameter(this string customText, dynamic obj)
         {
-            string paramToChange = "";
-            string changedParam = "";
-
             foreach (KeyValuePair<string, Dictionary<dynamic, string>> parameter in CustomTextParameter)
             {
-                paramToChange = parameter.Key;
+                string paramToChange = parameter.Key;
                 if (customText.Contains(paramToChange))
                 {
                     string propName = parameter.Value[obj.GetType()].ToString();
-                    changedParam = obj.GetType().GetProperty(propName).GetValue(obj, null).ToString();
+                    string changedParam = obj.GetType().GetProperty(propName).GetValue(obj, null).ToString();
                     customText = customText.Replace(paramToChange, changedParam);
                 }
             }
