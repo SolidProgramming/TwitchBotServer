@@ -210,6 +210,7 @@ namespace Bot_Manager
             }
 
             bot.TwitchClient.SendMessage(bot.Settings.Channel, bot.Settings.ChannelLeaveMessage);
+            bot.BotIntervalMessageTimer.Stop();
             bot.Status = BotClientStatusModel.AwaitingDisconnect;
             await Task.Delay(1);
             bot.TwitchClient.LeaveChannel(bot.Settings.Channel);
