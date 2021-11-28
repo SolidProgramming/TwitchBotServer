@@ -20,7 +20,8 @@ namespace Shares.Model
         public string ShoutOutText { get; set; }
         public string DonationMessage { get; set; }
         public string CheerMessage { get; set; }
-        public string RaidHostMessage { get;set; }
+        public string RaidHostMessage { get; set; }
+        public BotIntervalMessageModel BotIntervalMessage { get; set; } = new();
         public List<SceneModel> Scenes { get; set; } = new List<SceneModel>();
         public List<ChatCommandModel> ChatCommands { get; set; } = new List<ChatCommandModel>();
         public ChatLinkAccessibility ChatLinkAccessibility { get; set; } = ChatLinkAccessibility.Public;

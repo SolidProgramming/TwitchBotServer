@@ -63,7 +63,15 @@ namespace Bot_Manager
             bot.TwitchAPI.Helix.Settings.AccessToken = bot.Settings.TwitchOAuth;
             bot.TwitchAPI.Helix.Settings.ClientId = bot.Settings.TwitchClientId;
 
-            bot.TwitchClient.Initialize(credentials, botSetting.Channel);           
+            bot.TwitchClient.Initialize(credentials, botSetting.Channel);
+
+            if (bot.Settings.BotIntervalMessage.MinuteInterval > 0 && !string.IsNullOrEmpty(bot.Settings.BotIntervalMessage.Message))
+            {
+                bot.BotIntervalMessageTimer = new();
+                bot.BotIntervalMessageTimer.Interval = TimeSpan.FromMinutes(bot.Settings.BotIntervalMessage.MinuteInterval).TotalMilliseconds;
+                bot.BotIntervalMessageTimer.AutoReset = true;
+                bot.BotIntervalMessageTimer.Elapsed += (sender, e) => BotIntervalMessageTimer_Elapsed(sender, e, bot.Id);
+            }           
 
             Bots.Add(bot);
 
@@ -71,6 +79,7 @@ namespace Bot_Manager
 
             return bot;
         }
+
         public static TwitchBotModel CreateBot(TwitchBotModel bot)
         {
             var credentials = new ConnectionCredentials(bot.Settings.TwitchUsername, bot.Settings.TwitchOAuth);
@@ -108,6 +117,14 @@ namespace Bot_Manager
             bot.TwitchAPI.Helix.Settings.ClientId = bot.Settings.TwitchClientId;
 
             bot.TwitchClient.Initialize(credentials, bot.Settings.Channel);
+
+            if (bot.Settings.BotIntervalMessage.MinuteInterval > 0 && !string.IsNullOrEmpty(bot.Settings.BotIntervalMessage.Message))
+            {
+                bot.BotIntervalMessageTimer = new();
+                bot.BotIntervalMessageTimer.Interval = TimeSpan.FromMinutes(bot.Settings.BotIntervalMessage.MinuteInterval).TotalMilliseconds;
+                bot.BotIntervalMessageTimer.AutoReset = true;
+                bot.BotIntervalMessageTimer.Elapsed += (sender, e) => BotIntervalMessageTimer_Elapsed(sender, e, bot.Id);
+            }
 
             Bots.Add(bot);
 
@@ -172,6 +189,11 @@ namespace Bot_Manager
             if (!string.IsNullOrEmpty(bot.Settings.StreamelementsJWT))
             {
                 bot.StreamElementsClient.Connect();
+            }
+
+            if (bot.BotIntervalMessageTimer is not null)
+            {
+                bot.BotIntervalMessageTimer.Start();
             }
 
             bot.Status = BotClientStatusModel.Started;
@@ -268,11 +290,16 @@ namespace Bot_Manager
             TwitchBotModel bot = Bots.Single(_ => _.Id == botId);
             HandleHost(e, bot);
         }
+        private static void BotIntervalMessageTimer_Elapsed(object sender, System.Timers.ElapsedEventArgs e, string botId)
+        {
+            TwitchBotModel bot = Bots.Single(_ => _.Id == botId);
+            HandleBotIntervalMessage(bot);
+        }
         private static void HandleHost(OnBeingHostedArgs e, TwitchBotModel bot)
         {
             if (string.IsNullOrEmpty(bot.Settings.RaidHostMessage)) return;
 
-            //bot.TwitchClient.SendMessage(bot.Settings.Channel, bot.Settings.RaidHostMessage.ToCustomTextWithParameter(e.BeingHostedNotification));
+            bot.TwitchClient.SendMessage(bot.Settings.Channel, bot.Settings.RaidHostMessage);
         }
         private static void HandleTwitchMessageAsync(TwitchClient twitchClient, OnMessageReceivedArgs e)
         {
@@ -398,6 +425,10 @@ namespace Bot_Manager
                     }
                 }
             }
+        }
+        private static void HandleBotIntervalMessage(TwitchBotModel bot)
+        {
+            bot.TwitchClient.SendMessage(bot.Settings.Channel, bot.Settings.BotIntervalMessage.Message);
         }
         private static bool IsValidUrl(string url)
         {
