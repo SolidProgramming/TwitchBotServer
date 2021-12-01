@@ -21,6 +21,7 @@ namespace Shares.Model
         public string DonationMessage { get; set; }
         public string CheerMessage { get; set; }
         public string RaidHostMessage { get; set; }
+        public bool UseAutostart { get; set; }
         public BotIntervalMessageModel BotIntervalMessage { get; set; } = new();
         public List<SceneModel> Scenes { get; set; } = new List<SceneModel>();
         public List<ChatCommandModel> ChatCommands { get; set; } = new List<ChatCommandModel>();

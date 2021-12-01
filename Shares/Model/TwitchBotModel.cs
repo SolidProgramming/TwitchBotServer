@@ -18,6 +18,7 @@ namespace Shares.Model
         public BotSettingModel Settings;
         public List<string> Chatters = new();
         public Timer BotIntervalMessageTimer;
+        public Timer ChannelLiveTimer = new();        
         public string Id { get; set; }
         public BotClientStatusModel Status { get; set; } = BotClientStatusModel.Stopped;
     }

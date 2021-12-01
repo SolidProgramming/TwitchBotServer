@@ -1,29 +1,13 @@
 ﻿@page "/"
 @page "/dashboard"
 
-@using Services;
-@inject ISceneSwitcherService SwitcherService;
 
-    <h3>Scene Switching Debug</h3>
-    <br />
-    <div class="container-fluid">
+@code{
 
-        <input type="button" class="btn btn-primary" @onclick="@(e => Submit())" value="test scene switching" style="width:200px" />
-
-    </div>
-
-    @code{
-
-
-
-        protected override void OnInitialized()
-        {
-            SwitcherService = new SceneSwitcherService();
-        }
-
-        public void Submit()
-        {
-            SwitcherService.TriggerSceneSwitch("WOF");
-        }
-
+    protected override void OnInitialized()
+    {
+       
     }
+
+
+}

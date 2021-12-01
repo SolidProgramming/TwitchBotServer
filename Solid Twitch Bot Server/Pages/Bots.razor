@@ -3,81 +3,92 @@
 @using Shares.Model;
 @using Services;
 @inject IBotService BotService;
+@inject IBotService SettingsService;
 
 <h3>Meine Bots</h3>
 <br />
 
 @if (MyBots == null)
 {
-    <div class="d-flex justify-content-center">
-        <div class="spinner-border" role="status">
-            <span class="sr-only">Loading...</span>
-        </div>
-    </div>
+            <div class="d-flex justify-content-center">
+                <div class="spinner-border" role="status">
+                    <span class="sr-only">Loading...</span>
+                </div>
+            </div>
 }
 else
 {
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Bot Name</th>
-                <th>Bot Id</th>
-                <th>Channel</th>
-                <th>Connected?</th>
-                <th>Delete?</th>
-            </tr>
-        </thead>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Autostart</th>
+                        <th>Bot Name</th>
+                        <th>Bot Id</th>
+                        <th>Channel</th>
+                        <th>Connected?</th>
+                        <th>Delete?</th>
+                    </tr>
+                </thead>
+        @{
+            int i = 0;
+        }
         @foreach (var bot in MyBots)
         {
-            <tr>
-                <td><a href="@string.Format("/bots/{0}", bot.Id)">@bot.Settings.TwitchUsername</a></td>
-                <td>@bot.Id</td>
-                <td>@bot.Settings.Channel</td>
-                <td>
+                            <tr>
+                                <td>
+                                    <div class="custom-control custom-checkbox">
+                                        <input class="custom-control-input" type="checkbox" id="autostart@(i)" value="@bot.Settings.UseAutostart" @onchange="(e => OnAutostartChange(bot.Id))">
+                                        <label class="custom-control-label" for="autostart@(i)" disabled></label>
+                                    </div>
+                                </td>
+                                <td><a href="@string.Format("/bots/{0}", bot.Id)">@bot.Settings.TwitchUsername</a></td>
+                                <td>@bot.Id</td>
+                                <td>@bot.Settings.Channel</td>
+                                <td>                   
                     @switch (bot.Status)
                     {
                         case BotClientStatusModel.Stopped:
-                            <button class="btn btn-primary" type="button" @onclick="@(e => StartBot(@bot.Id))">
-                                <span role="status" aria-hidden="true">
-                                    Start
-                                </span>
-                            </button>
+                                                            <button class="btn btn-primary" type="button" @onclick="@(e => StartBot(@bot.Id))">
+                                                                <span role="status" aria-hidden="true">
+                                                                    Start
+                                                                </span>
+                                                            </button>
                             break;
                         case BotClientStatusModel.Started:
-                            <button class="btn btn-primary" type="button" @onclick="@(e => StopBot(@bot.Id))">
-                                <span role="status" aria-hidden="true">
-                                    Stop
-                                </span>
-                            </button>
+                                                            <button class="btn btn-primary" type="button" @onclick="@(e => StopBot(@bot.Id))">
+                                                                <span role="status" aria-hidden="true">
+                                                                    Stop
+                                                                </span>
+                                                            </button>
                             break;
                         case BotClientStatusModel.AwaitingDisconnect:
-                            <button class="btn btn-primary" type="button">
-                                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true">
-                                </span>
-                                Awaiting Disconnect
-                            </button>
+                                                            <button class="btn btn-primary" type="button">
+                                                                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true">
+                                                                </span>
+                                                                Awaiting Disconnect
+                                                            </button>
                             break;
                         case BotClientStatusModel.AwaitingConnection:
-                            <button class="btn btn-primary" type="button">
-                                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true">
-                                </span>
-                                Awaiting Connection
-                            </button>
+                                                            <button class="btn btn-primary" type="button">
+                                                                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true">
+                                                                </span>
+                                                                Awaiting Connection
+                                                            </button>
                             break;
                         default:
                             break;
                     }
 
-                </td>
-                <td><input type="button" class="btn btn-secondary" @onclick="@(e => DeleteBot(@bot.Id))" value="Delete" /></td>
-            </tr>
-
+                                </td>
+                                <td><input type="button" class="btn btn-secondary" @onclick="@(e => DeleteBot(@bot.Id))" value="Delete" /></td>
+                            </tr>
+      i++;
         }
-    </table>
-    <br />
-    <div class="container-fluid">
-        <a href="/newbot" onclick="Submit"><input type="button" class="btn btn-primary" value="Neuer Bot" /></a>
-    </div>
+            </table>
+            <br />
+            <div class="container-fluid">
+                <a href="/newbot" onclick="Submit"><input type="button" class="btn btn-primary" value="Neuer Bot" /></a>
+            </div>
 }
 
 
@@ -89,18 +100,27 @@ else
     //TODO: needs singleton
     protected override async Task OnInitializedAsync()
     {
-        await Task.Run(LoadBots);
+        await LoadBots();
     }
 
-    private void LoadBots()
+    private async Task LoadBots()
     {
-        
         MyBots = BotService.GetBots();
 
         if (MyBots == null)
         {
             MyBots = new List<TwitchBotModel>();
             return;
+        }
+
+        await AutostartBots();
+    }
+
+    public async Task AutostartBots()
+    {
+        foreach(TwitchBotModel bot in MyBots.Where(_ => _.Settings.UseAutostart))
+        {
+            await StartBot(bot.Id);
         }
     }
 
@@ -135,5 +155,14 @@ else
     public void DeleteBot(string botId)
     {
         BotService.DeleteBot(botId);
+    }
+
+    public void OnAutostartChange(string botId)
+    {
+        TwitchBotModel bot = MyBots.Single(_ => _.Id == botId);
+        bot.Settings.UseAutostart = !bot.Settings.UseAutostart;
+
+        BotService.SetBotSettings(botId, bot.Settings);
+        BotService.SaveBotsSettings();
     }
 }
