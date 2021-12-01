@@ -21,7 +21,7 @@ namespace Solid_Twitch_Bot_Server
     {
         private static string[] _args = new string[1];
 
-        public static async Task Main(string[] args)
+        public static void Main(string[] args)
         {           
 
             if (Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER") != "true" && AnotherInstanceExists())
@@ -37,11 +37,11 @@ namespace Solid_Twitch_Bot_Server
                 _args[0] = "http://[::1]:0";
             }
 
-            List<TwitchBotModel> bla = BotManager.GetBots().Where(_ => _.Settings.UseAutostart).ToList();
+            List<TwitchBotModel> autoStartBots = BotManager.GetBots().Where(_ => _.Settings.UseAutostart).ToList();
 
-            foreach (TwitchBotModel bot in bla)
+            foreach (TwitchBotModel bot in autoStartBots)
             {
-                await BotManager.StartBot(bot.Id);
+                BotManager.StartAutostartOnLiveCheck(bot.Id);
             }
 
             CreateHostBuilder().Build().Run();
