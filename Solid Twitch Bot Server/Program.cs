@@ -12,6 +12,8 @@ using System.Net.NetworkInformation;
 using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using Bot_Manager;
+using Shares.Model;
 
 namespace Solid_Twitch_Bot_Server
 {
@@ -19,7 +21,7 @@ namespace Solid_Twitch_Bot_Server
     {
         private static string[] _args = new string[1];
 
-        public static void Main(string[] args)
+        public static async Task Main(string[] args)
         {           
 
             if (Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER") != "true" && AnotherInstanceExists())
@@ -33,6 +35,13 @@ namespace Solid_Twitch_Bot_Server
             if (Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER") != "true")
             {
                 _args[0] = "http://[::1]:0";
+            }
+
+            List<TwitchBotModel> bla = BotManager.GetBots().Where(_ => _.Settings.UseAutostart).ToList();
+
+            foreach (TwitchBotModel bot in bla)
+            {
+                await BotManager.StartBot(bot.Id);
             }
 
             CreateHostBuilder().Build().Run();

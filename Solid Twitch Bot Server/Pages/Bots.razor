@@ -1,4 +1,5 @@
-﻿@page "/bots"
+﻿@page "/"
+@page "/bots"
 @using Shares;
 @using Shares.Model;
 @using Services;
@@ -37,7 +38,7 @@ else
                             <tr>
                                 <td>
                                     <div class="custom-control custom-checkbox">
-                                        <input class="custom-control-input" type="checkbox" id="autostart@(i)" value="@bot.Settings.UseAutostart" @onchange="(e => OnAutostartChange(bot.Id))">
+                                        <input class="custom-control-input" type="checkbox" id="autostart@(i)" checked="@bot.Settings.UseAutostart" @onchange="(e => OnAutostartChange(bot.Id))">
                                         <label class="custom-control-label" for="autostart@(i)" disabled></label>
                                     </div>
                                 </td>
@@ -100,10 +101,10 @@ else
     //TODO: needs singleton
     protected override async Task OnInitializedAsync()
     {
-        await LoadBots();
+        await Task.Run(LoadBots);
     }
 
-    private async Task LoadBots()
+    private void LoadBots()
     {
         MyBots = BotService.GetBots();
 
@@ -111,16 +112,6 @@ else
         {
             MyBots = new List<TwitchBotModel>();
             return;
-        }
-
-        await AutostartBots();
-    }
-
-    public async Task AutostartBots()
-    {
-        foreach(TwitchBotModel bot in MyBots.Where(_ => _.Settings.UseAutostart))
-        {
-            await StartBot(bot.Id);
         }
     }
 
