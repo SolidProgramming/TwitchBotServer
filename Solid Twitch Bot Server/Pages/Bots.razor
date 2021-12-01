@@ -3,93 +3,92 @@
 @using Shares;
 @using Shares.Model;
 @using Services;
-@inject IBotService BotService;
-@inject IBotService SettingsService;
+@inject BotService BotService;
 
 <h3>Meine Bots</h3>
 <br />
 
 @if (MyBots == null)
 {
-            <div class="d-flex justify-content-center">
-                <div class="spinner-border" role="status">
-                    <span class="sr-only">Loading...</span>
-                </div>
-            </div>
+                    <div class="d-flex justify-content-center">
+                        <div class="spinner-border" role="status">
+                            <span class="sr-only">Loading...</span>
+                        </div>
+                    </div>
 }
 else
 {
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th>Start wenn Live</th>
-                        <th>Bot Name</th>
-                        <th>Bot Id</th>
-                        <th>Channel</th>
-                        <th>Connected?</th>
-                        <th>Delete?</th>
-                    </tr>
-                </thead>
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Start wenn Live</th>
+                                <th>Bot Name</th>
+                                <th>Bot Id</th>
+                                <th>Channel</th>
+                                <th>Connected?</th>
+                                <th>Delete?</th>
+                            </tr>
+                        </thead>
         @{
             int i = 0;
         }
         @foreach (var bot in MyBots)
         {
-                            <tr>
-                                <td>
-                                    <div class="custom-control custom-checkbox">
-                                        <input class="custom-control-input" type="checkbox" id="autostart@(i)" checked="@bot.Settings.UseAutostart" @onchange="(e => OnAutostartChange(bot.Id))">
-                                        <label class="custom-control-label" for="autostart@(i)" disabled></label>
-                                    </div>
-                                </td>
-                                <td><a href="@string.Format("/bots/{0}", bot.Id)">@bot.Settings.TwitchUsername</a></td>
-                                <td>@bot.Id</td>
-                                <td>@bot.Settings.Channel</td>
-                                <td>                   
+                                            <tr>
+                                                <td>
+                                                    <div class="custom-control custom-checkbox">
+                                                        <input class="custom-control-input" type="checkbox" id="autostart@(i)" checked="@bot.Settings.UseAutostart" @onchange="(e => OnAutostartChange(bot.Id))">
+                                                        <label class="custom-control-label" for="autostart@(i)" disabled></label>
+                                                    </div>
+                                                </td>
+                                                <td><a href="@string.Format("/bots/{0}", bot.Id)">@bot.Settings.TwitchUsername</a></td>
+                                                <td>@bot.Id</td>
+                                                <td>@bot.Settings.Channel</td>
+                                                <td>                   
                     @switch (bot.Status)
                     {
                         case BotClientStatusModel.Stopped:
-                                                            <button class="btn btn-primary" type="button" @onclick="@(e => StartBot(@bot.Id))">
-                                                                <span role="status" aria-hidden="true">
-                                                                    Start
-                                                                </span>
-                                                            </button>
+                                                                                            <button class="btn btn-primary" type="button" @onclick="@(e => StartBot(@bot.Id))">
+                                                                                                <span role="status" aria-hidden="true">
+                                                                                                    Start
+                                                                                                </span>
+                                                                                            </button>
                             break;
                         case BotClientStatusModel.Started:
-                                                            <button class="btn btn-primary" type="button" @onclick="@(e => StopBot(@bot.Id))">
-                                                                <span role="status" aria-hidden="true">
-                                                                    Stop
-                                                                </span>
-                                                            </button>
+                                                                                            <button class="btn btn-primary" type="button" @onclick="@(e => StopBot(@bot.Id))">
+                                                                                                <span role="status" aria-hidden="true">
+                                                                                                    Stop
+                                                                                                </span>
+                                                                                            </button>
                             break;
                         case BotClientStatusModel.AwaitingDisconnect:
-                                                            <button class="btn btn-primary" type="button">
-                                                                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true">
-                                                                </span>
-                                                                Awaiting Disconnect
-                                                            </button>
+                                                                                            <button class="btn btn-primary" type="button">
+                                                                                                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true">
+                                                                                                </span>
+                                                                                                Awaiting Disconnect
+                                                                                            </button>
                             break;
                         case BotClientStatusModel.AwaitingConnection:
-                                                            <button class="btn btn-primary" type="button">
-                                                                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true">
-                                                                </span>
-                                                                Awaiting Connection
-                                                            </button>
+                                                                                            <button class="btn btn-primary" type="button">
+                                                                                                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true">
+                                                                                                </span>
+                                                                                                Awaiting Connection
+                                                                                            </button>
                             break;
                         default:
                             break;
                     }
 
-                                </td>
-                                <td><input type="button" class="btn btn-secondary" @onclick="@(e => DeleteBot(@bot.Id))" value="Delete" /></td>
-                            </tr>
-      i++;
+                                                </td>
+                                                <td><input type="button" class="btn btn-secondary" @onclick="@(e => DeleteBot(@bot.Id))" value="Delete" /></td>
+                                            </tr>
+            i++;
         }
-            </table>
-            <br />
-            <div class="container-fluid">
-                <a href="/newbot" onclick="Submit"><input type="button" class="btn btn-primary" value="Neuer Bot" /></a>
-            </div>
+                    </table>
+                    <br />
+                    <div class="container-fluid">
+                        <a href="/newbot" onclick="Submit"><input type="button" class="btn btn-primary" value="Neuer Bot" /></a>
+                    </div>
 }
 
 
@@ -143,9 +142,9 @@ else
         }
     }
 
-    public void DeleteBot(string botId)
+    public async void DeleteBot(string botId)
     {
-        BotService.DeleteBot(botId);
+        await BotService.DeleteBot(botId);
     }
 
     public void OnAutostartChange(string botId)
@@ -155,5 +154,15 @@ else
 
         BotService.SetBotSettings(botId, bot.Settings);
         BotService.SaveBotsSettings();
+
+        if (bot.Settings.UseAutostart)
+        {
+            BotService.StartAutostartOnLiveCheck(bot);
+        }
+        else
+        {
+            
+            BotService.StopAutostartOnLiveCheck(bot);
+        }
     }
 }

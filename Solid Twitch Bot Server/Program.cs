@@ -41,7 +41,7 @@ namespace Solid_Twitch_Bot_Server
 
             foreach (TwitchBotModel bot in autoStartBots)
             {
-                BotManager.StartAutostartOnLiveCheck(bot.Id);
+                BotManager.StartAutostartOnLiveCheck(bot);
             }
 
             CreateHostBuilder().Build().Run();

@@ -74,6 +74,9 @@ namespace Bot_Manager
                 bot.BotIntervalMessageTimer.Elapsed += (sender, e) => BotIntervalMessageTimer_Elapsed(sender, e, bot.Id);
             }
 
+            bot.ChannelLiveTimer.Interval = TimeSpan.FromSeconds(10).TotalMilliseconds;
+            bot.ChannelLiveTimer.Elapsed += async (sender, e) => await ChannelLiveTimer_Elapsed(sender, e, bot);
+
             Bots.Add(bot);
 
             SettingsHandler.SaveSettings(Bots.Select(_ => _.Settings).ToList(), FileType.BotSettings);
@@ -125,6 +128,9 @@ namespace Bot_Manager
                 bot.BotIntervalMessageTimer.AutoReset = true;
                 bot.BotIntervalMessageTimer.Elapsed += (sender, e) => BotIntervalMessageTimer_Elapsed(sender, e, bot.Id);
             }
+
+            bot.ChannelLiveTimer.Interval = TimeSpan.FromSeconds(10).TotalMilliseconds;
+            bot.ChannelLiveTimer.Elapsed += async (sender, e) => await ChannelLiveTimer_Elapsed(sender, e, bot);
 
             Bots.Add(bot);
 
@@ -479,25 +485,23 @@ namespace Bot_Manager
             await hueClient.RegisterClient("127.0.0.1", PhilipsHueBridgeLocatorType.LocalNetworkScanBridgeLocator);
 
         }
-        public static void StartAutostartOnLiveCheck(string botId)
-        {
-            TwitchBotModel bot = Bots.Single(_ => _.Id == botId);
-            bot.ChannelLiveTimer.Interval = TimeSpan.FromSeconds(10).TotalMilliseconds;
-            bot.ChannelLiveTimer.Elapsed += async (sender, e) => await ChannelLiveTimer_Elapsed(sender, e, bot);
+        public static void StartAutostartOnLiveCheck(TwitchBotModel bot)
+        {                     
             bot.ChannelLiveTimer.Start();
         }
-
+        public static void StopAutostartOnLiveCheck(TwitchBotModel bot)
+        {          
+            bot.ChannelLiveTimer.Stop();
+        }
         private static async Task ChannelLiveTimer_Elapsed(object sender, System.Timers.ElapsedEventArgs e, TwitchBotModel bot)
         {
             bool isChannelLive = await CheckChannelLiveStatus(bot);
-
-            if (isChannelLive)
+            
+            if (isChannelLive && bot.Status == BotClientStatusModel.Stopped)
             {
                 await StartBot(bot.Id);
             }
-
         }
-
         private static async Task<bool> CheckChannelLiveStatus(TwitchBotModel bot)
         {
             bool ApiCallSuccess;
@@ -519,7 +523,6 @@ namespace Bot_Manager
 
             return false;
         }
-
         private static async Task<(bool, string)> GetTwitchUserId(TwitchBotModel bot, string channelOrUser)
         {
             GetUsersResponse user = await bot.TwitchAPI.Helix.Users.GetUsersAsync(logins: new() { bot.Settings.Channel });

@@ -36,7 +36,7 @@ namespace Solid_Twitch_Bot_Server
         {
             services.AddRazorPages();
             services.AddServerSideBlazor();
-            services.AddSingleton<IBotService, BotService>();
+            services.AddSingleton<BotService>();
             services.AddSingleton<ISceneSwitcherService, SceneSwitcherService>();
             services.AddSingleton<IOBSService, OBSService>();
             Log.Init();

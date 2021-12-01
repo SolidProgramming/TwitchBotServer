@@ -7,7 +7,7 @@ using Bot_Manager;
 
 namespace Solid_Twitch_Bot_Server.Services
 {
-    public class BotService : IBotService
+    public class BotService
     {
         //public TwitchClientExt CreateBot(TwitchClientExt botClient)
         //{
@@ -52,6 +52,14 @@ namespace Solid_Twitch_Bot_Server.Services
         public BotSettingModel GetBotSettings(string botId)
         {
             return BotManager.GetBotSettings(botId);
+        }
+        public void StartAutostartOnLiveCheck(TwitchBotModel bot)
+        {
+            BotManager.StartAutostartOnLiveCheck(bot);
+        }
+        public void StopAutostartOnLiveCheck(TwitchBotModel bot)
+        {
+            BotManager.StopAutostartOnLiveCheck(bot);
         }
     }
 }
