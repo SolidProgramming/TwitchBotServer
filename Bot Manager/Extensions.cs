@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Text.RegularExpressions;
 using Shares.Enum;
 using Shares;
+using WebSocketSharp;
 
 namespace Bot_Manager
 {
@@ -14,7 +15,27 @@ namespace Bot_Manager
         public static bool IsCommand(this string text, out ChatCommand? command)
         {
             command = null;
-            string commandName = Regex.Match(text, "\\!(.*?)\\s").Groups[1].Value;
+
+            Regex regex = new("\\!(.*?)\\s|\\!(.*?)$");
+
+            bool isMatch = regex.Match(text).Success;
+
+            if (!isMatch)
+                return false;
+
+            GroupCollection matches = regex.Match(text).Groups;
+
+            string commandName = "";
+
+            if (!string.IsNullOrEmpty(matches[1].Value))
+            {
+                commandName = matches[1].Value;
+            }
+
+            if (!string.IsNullOrEmpty(matches[2].Value))
+            {
+                commandName = matches[2].Value;
+            }
 
             if (string.IsNullOrEmpty(commandName))
             {

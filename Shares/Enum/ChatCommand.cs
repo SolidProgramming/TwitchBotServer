@@ -10,6 +10,7 @@ namespace Shares.Enum
     {
         None,
         StartStream,
-        ShoutOut
+        ShoutOut,
+        Cheat
     }
 }

@@ -19,6 +19,10 @@ namespace Shares
             {
                 "startstream",
                 ChatCommand.StartStream
+            },
+            {
+                "cheat",
+                ChatCommand.Cheat
             }
 
         };

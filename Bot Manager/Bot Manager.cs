@@ -24,6 +24,7 @@ namespace Bot_Manager
     {
         private static List<TwitchBotModel> Bots = new();
         private static OBSWebsocketControllerClient OBSController;
+        private static int CheatCount = 0;
 
         public static TwitchBotModel CreateBot(BotSettingModel botSetting)
         {
@@ -374,6 +375,9 @@ namespace Bot_Manager
                     case Shares.Enum.ChatCommand.ShoutOut:
                         HandleShoutout(bot, chatMessage);
                         break;
+                    case Shares.Enum.ChatCommand.Cheat:
+                        HandleCheat(bot);
+                        break;
                     default:
                         break;
                 }
@@ -385,8 +389,7 @@ namespace Bot_Manager
 
             string channelName = bot.Settings.Channel;
             string userId = chatMessage.UserId;
-            string username = chatMessage.Username;
-
+            
             string customUsername = chatMessage.Message.Substring(chatMessage.Message.IndexOf(' ') + 1).Replace("@", string.Empty);
 
             CustomUserModel customUserModel = new()
@@ -403,6 +406,15 @@ namespace Bot_Manager
                 bot.TwitchClient.SendReply(channelName, userId, "Dieser Benutzer existiert nicht.");
             }
         }
+
+        private static async void HandleCheat(TwitchBotModel bot)
+        {
+            string channelName = bot.Settings.Channel;
+
+            CheatCount++;
+            bot.TwitchClient.SendMessage(channelName, $"@{channelName} hat in diesem Stream schon {CheatCount}x gecheatet!");
+        }
+
         private static void HandleLinkPosting(ref TwitchBotModel bot, ChatMessage chatMessage)
         {
             string chatterUsername = chatMessage.DisplayName;
