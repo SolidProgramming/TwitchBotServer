@@ -105,14 +105,21 @@
             <br />
             <div class="row">
                 <div class="col-md-6">
-                    <label class="font-weight-bold">Nachricht bei Raid/Host <span class="badge badge-secondary">New</span></label>
+                    <label class="font-weight-bold">!RIP Text <span class="badge badge-success">Mod</span> <span class="badge badge-success">Broadcaster</span> <span class="badge badge-warning">New</span></label>
+                    <input class="form-control" placeholder="{broadcaster} ist in diesem Stream schon {deathcount}x gestorben!" @bind-value="@BotSetting.DeathMessage" />
+                </div>
+            </div>
+            <br />
+            <div class="row">
+                <div class="col-md-6">
+                    <label class="font-weight-bold">Nachricht bei Raid/Host</label>
                     <input class="form-control" placeholder="Danke für den Raid/Host {username}! Es wurde {game} gestreamt." @bind-value="@BotSetting.RaidHostMessage" />
                 </div>
             </div>
             <br />
             <div class="row">               
                 <div class="col-md-6">
-                    <label class="font-weight-bold">Zeitgesteuerte Nachricht <span class="badge badge-secondary">New</span></label>
+                    <label class="font-weight-bold">Zeitgesteuerte Nachricht</label>
                     <input class="form-control" placeholder="Meine Nachricht" @bind-value="@BotSetting.BotIntervalMessage.Message" />
                 </div>
                 <div class="col-sm-3">

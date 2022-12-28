@@ -12,6 +12,7 @@ using TwitchLib.Client.Enums.Internal;
 using TwitchLib.Client.Events;
 using TwitchLib.Client.Models;
 using StreamElementsNET.Models.Host;
+using TwitchLib.Api.V5.Models.Clips;
 
 namespace Shares
 {
@@ -52,6 +53,20 @@ namespace Shares
                 {
                     { typeof(OnBeingHostedArgs), "Channel"}
                 }
+            },
+            {
+                "{broadcaster}",
+                 new()
+                {
+                    { typeof(CustomDeathCounterModel), "BroadcasterName"}
+                }
+            },
+            {
+                "{deathcount}",
+                 new()
+                {
+                    { typeof(CustomDeathCounterModel), "Value"}
+                }
             }
         };
 
@@ -70,5 +85,6 @@ namespace Shares
 
             return customText;
         }
+
     }
 }

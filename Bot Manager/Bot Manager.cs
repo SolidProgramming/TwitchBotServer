@@ -18,6 +18,8 @@ using StreamElementsNET.Models.Host;
 using System.Security.Cryptography;
 using TwitchLib.Api.Helix.Models.Streams.GetStreams;
 using Bot_Manager.LiteDB;
+using TwitchLib.Api.Core.Models.Undocumented.ClipChat;
+using TwitchLib.Api.V5.Models.Clips;
 
 namespace Bot_Manager
 {
@@ -378,7 +380,7 @@ namespace Bot_Manager
                         HandleCheat(bot);
                         break;
                     case Shares.Enum.ChatCommand.Death:
-                        HandleDeath(bot);
+                        HandleDeath(bot, chatMessage);
                         break;
                     default:
                         break;
@@ -414,13 +416,24 @@ namespace Bot_Manager
 
             bot.TwitchClient.SendMessage(channelName, $"@{channelName} hat in diesem Stream schon XYx gecheatet!");
         }
-        private static async void HandleDeath(TwitchBotModel bot)
+        private static async void HandleDeath(TwitchBotModel bot, ChatMessage chatMessage)
         {
+            if (string.IsNullOrEmpty(bot.Settings.DeathMessage)) return;
+
+            if (!chatMessage.IsBroadcaster && !chatMessage.IsModerator)
+                return;
+
             string channelName = bot.Settings.Channel;
 
             int deathCount = LiteDBHelper.GetDeathCount(channelName);
 
-            bot.TwitchClient.SendMessage(channelName, $"@{channelName} ist in diesem Stream schon {deathCount}x gestorben! So ein Noob! pepeLaugh");
+            CustomDeathCounterModel customDeathCounter = new()
+            {
+                Value = deathCount,
+                BroadcasterName = channelName
+            };
+
+            bot.TwitchClient.SendMessage(channelName, bot.Settings.DeathMessage.ToCustomTextWithParameter(customDeathCounter));
         }
         private static void HandleLinkPosting(ref TwitchBotModel bot, ChatMessage chatMessage)
         {
