@@ -338,3 +338,5 @@ ASALocalRun/
 
 # BeatPulse healthcheck temp database
 healthchecksdb
+/Shares/Encryption.cs
+/Solid Twitch Bot Server/twitchbot.db
