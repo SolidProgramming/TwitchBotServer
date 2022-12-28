@@ -23,6 +23,18 @@ namespace Shares
             {
                 "cheat",
                 ChatCommand.Cheat
+            },
+            {
+                "rip",
+                ChatCommand.Death
+            },
+            {
+                "death",
+                ChatCommand.Death
+            },
+            {
+                "gestorben",
+                ChatCommand.Death
             }
 
         };

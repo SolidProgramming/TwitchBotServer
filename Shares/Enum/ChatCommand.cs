@@ -11,6 +11,7 @@ namespace Shares.Enum
         None,
         StartStream,
         ShoutOut,
-        Cheat
+        Cheat,
+        Death
     }
 }

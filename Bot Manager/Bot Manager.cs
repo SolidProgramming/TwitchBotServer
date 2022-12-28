@@ -17,6 +17,7 @@ using TwitchLib.Api.Helix.Models.Users.GetUsers;
 using StreamElementsNET.Models.Host;
 using System.Security.Cryptography;
 using TwitchLib.Api.Helix.Models.Streams.GetStreams;
+using Bot_Manager.LiteDB;
 
 namespace Bot_Manager
 {
@@ -24,21 +25,19 @@ namespace Bot_Manager
     {
         private static List<TwitchBotModel> Bots = new();
         private static OBSWebsocketControllerClient OBSController;
-        private static int CheatCount = 0;
 
         public static TwitchBotModel CreateBot(BotSettingModel botSetting)
         {
             var credentials = new ConnectionCredentials(botSetting.TwitchUsername, botSetting.TwitchOAuth);
 
-            var bot = new TwitchBotModel()
+            var bot = new TwitchBotModel
             {
                 TwitchClient = new(),
                 TwitchAPI = new(),
                 StreamElementsClient = new(botSetting.StreamelementsJWT),
-                Settings = botSetting
+                Settings = botSetting,
+                Id = Guid.NewGuid().ToString()
             };
-
-            bot.Id = Guid.NewGuid().ToString();
 
             bot.TwitchClient.OnJoinedChannel += TwitchClient_OnJoinedChannel;
             bot.TwitchClient.OnConnected += TwitchClient_OnConnected;
@@ -378,6 +377,9 @@ namespace Bot_Manager
                     case Shares.Enum.ChatCommand.Cheat:
                         HandleCheat(bot);
                         break;
+                    case Shares.Enum.ChatCommand.Death:
+                        HandleDeath(bot);
+                        break;
                     default:
                         break;
                 }
@@ -389,7 +391,7 @@ namespace Bot_Manager
 
             string channelName = bot.Settings.Channel;
             string userId = chatMessage.UserId;
-            
+
             string customUsername = chatMessage.Message.Substring(chatMessage.Message.IndexOf(' ') + 1).Replace("@", string.Empty);
 
             CustomUserModel customUserModel = new()
@@ -406,15 +408,20 @@ namespace Bot_Manager
                 bot.TwitchClient.SendReply(channelName, userId, "Dieser Benutzer existiert nicht.");
             }
         }
-
         private static async void HandleCheat(TwitchBotModel bot)
         {
             string channelName = bot.Settings.Channel;
 
-            CheatCount++;
-            bot.TwitchClient.SendMessage(channelName, $"@{channelName} hat in diesem Stream schon {CheatCount}x gecheatet!");
+            bot.TwitchClient.SendMessage(channelName, $"@{channelName} hat in diesem Stream schon XYx gecheatet!");
         }
+        private static async void HandleDeath(TwitchBotModel bot)
+        {
+            string channelName = bot.Settings.Channel;
 
+            int deathCount = LiteDBHelper.GetDeathCount(channelName);
+
+            bot.TwitchClient.SendMessage(channelName, $"@{channelName} ist in diesem Stream schon {deathCount}x gestorben! So ein Noob! pepeLaugh");
+        }
         private static void HandleLinkPosting(ref TwitchBotModel bot, ChatMessage chatMessage)
         {
             string chatterUsername = chatMessage.DisplayName;
@@ -498,17 +505,17 @@ namespace Bot_Manager
 
         }
         public static void StartAutostartOnLiveCheck(TwitchBotModel bot)
-        {                     
+        {
             bot.ChannelLiveTimer.Start();
         }
         public static void StopAutostartOnLiveCheck(TwitchBotModel bot)
-        {          
+        {
             bot.ChannelLiveTimer.Stop();
         }
         private static async Task ChannelLiveTimer_Elapsed(object sender, System.Timers.ElapsedEventArgs e, TwitchBotModel bot)
         {
             bool isChannelLive = await CheckChannelLiveStatus(bot);
-            
+
             if (isChannelLive && bot.Status == BotClientStatusModel.Stopped)
             {
                 await StartBot(bot.Id);

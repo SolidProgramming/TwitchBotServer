@@ -13,6 +13,8 @@ using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Bot_Manager;
+using Bot_Manager.LiteDB.Models;
+using Bot_Manager.LiteDB;
 using Shares.Model;
 
 namespace Solid_Twitch_Bot_Server
@@ -22,8 +24,8 @@ namespace Solid_Twitch_Bot_Server
         private static string[] _args = new string[1];
 
         public static void Main(string[] args)
-        {           
-
+        {
+            
             if (Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER") != "true" && AnotherInstanceExists())
             {
                 string processName = Process.GetCurrentProcess().ProcessName;
