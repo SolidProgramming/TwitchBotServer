@@ -31,7 +31,6 @@ namespace Bot_Manager.LiteDB
             }
 
             result.LastUpdate = DateTime.Now;
-            result.Deaths++;
 
             if (needInsert)
             {
@@ -43,6 +42,39 @@ namespace Bot_Manager.LiteDB
             }
 
             return result.Deaths;
+        }
+
+        internal static void UpdateDeathCount(string channel, int newDeathCount)
+        {
+            using LiteDatabase db = new(@"twitchbot.db");
+
+            ILiteCollection<StreamEventsCounter> col = db.GetCollection<StreamEventsCounter>("streamevents");
+
+            StreamEventsCounter result = col.FindOne(x => x.Channel == channel && x.StreamDate == DateTime.Today);
+
+            bool needInsert = false;
+
+            if (result is null)
+            {
+                result = new StreamEventsCounter
+                {
+                    Channel = channel,
+                    StreamDate = DateTime.Today
+                };
+                needInsert = true;
+            }
+
+            result.LastUpdate = DateTime.Now;
+            result.Deaths = newDeathCount;
+
+            if (needInsert)
+            {
+                col.Insert(result);
+            }
+            else
+            {
+                col.Update(result);
+            }
         }
     }
 }

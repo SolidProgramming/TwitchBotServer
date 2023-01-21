@@ -12,6 +12,9 @@ namespace Shares.Enum
         StartStream,
         ShoutOut,
         Cheat,
-        Death
+        DeathAdd,
+        DeathSub,
+        DeathReset,
+        RipCount
     }
 }

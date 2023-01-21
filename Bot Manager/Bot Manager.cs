@@ -379,8 +379,17 @@ namespace Bot_Manager
                     case Shares.Enum.ChatCommand.Cheat:
                         HandleCheat(bot);
                         break;
-                    case Shares.Enum.ChatCommand.Death:
-                        HandleDeath(bot, chatMessage);
+                    case Shares.Enum.ChatCommand.DeathAdd:
+                        HandleDeathAdd(bot, chatMessage);
+                        break;
+                    case Shares.Enum.ChatCommand.DeathSub:
+                        HandleDeathSub(bot, chatMessage);
+                        break;
+                    case Shares.Enum.ChatCommand.RipCount:
+                        HandleRipCount(bot, chatMessage);
+                        break;
+                    case Shares.Enum.ChatCommand.DeathReset:
+                        HandleRipReset(bot, chatMessage);
                         break;
                     default:
                         break;
@@ -416,7 +425,7 @@ namespace Bot_Manager
 
             bot.TwitchClient.SendMessage(channelName, $"@{channelName} hat in diesem Stream schon XYx gecheatet!");
         }
-        private static async void HandleDeath(TwitchBotModel bot, ChatMessage chatMessage)
+        private static async void HandleDeathAdd(TwitchBotModel bot, ChatMessage chatMessage)
         {
             if (string.IsNullOrEmpty(bot.Settings.DeathMessage)) return;
 
@@ -427,13 +436,64 @@ namespace Bot_Manager
 
             int deathCount = LiteDBHelper.GetDeathCount(channelName);
 
+            deathCount++;
+
             CustomDeathCounterModel customDeathCounter = new()
             {
                 Value = deathCount,
                 BroadcasterName = channelName
             };
 
+            LiteDBHelper.UpdateDeathCount(channelName, deathCount);
+
             bot.TwitchClient.SendMessage(channelName, bot.Settings.DeathMessage.ToCustomTextWithParameter(customDeathCounter));
+        }
+        private static async void HandleDeathSub(TwitchBotModel bot, ChatMessage chatMessage)
+        {
+            if (!chatMessage.IsBroadcaster && !chatMessage.IsModerator)
+                return;
+
+            string channelName = bot.Settings.Channel;
+            string userId = chatMessage.UserId;
+
+            int deathCount = LiteDBHelper.GetDeathCount(channelName);
+
+            deathCount--;
+
+            CustomDeathCounterModel customDeathCounter = new()
+            {
+                Value = deathCount,
+                BroadcasterName = channelName
+            };
+
+            LiteDBHelper.UpdateDeathCount(channelName, deathCount);
+
+            bot.TwitchClient.SendReply(channelName, userId, "OK!");
+        }
+        private static async void HandleRipCount(TwitchBotModel bot, ChatMessage chatMessage)
+        {
+            string channelName = bot.Settings.Channel;
+
+            int deathCount = LiteDBHelper.GetDeathCount(channelName);
+            string userId = chatMessage.UserId;
+
+            CustomDeathCounterModel customDeathCounter = new()
+            {
+                Value = deathCount,
+                BroadcasterName = channelName
+            };
+
+            bot.TwitchClient.SendReply(channelName, userId, "OK!");
+        }
+        private static async void HandleRipReset(TwitchBotModel bot, ChatMessage chatMessage)
+        {
+            string channelName = bot.Settings.Channel;
+                        
+            string userId = chatMessage.UserId;
+
+            LiteDBHelper.UpdateDeathCount(channelName, 0);
+
+            bot.TwitchClient.SendWhisper(userId, "OK!");
         }
         private static void HandleLinkPosting(ref TwitchBotModel bot, ChatMessage chatMessage)
         {

@@ -26,15 +26,35 @@ namespace Shares
             },
             {
                 "rip",
-                ChatCommand.Death
+                ChatCommand.DeathAdd
             },
             {
                 "death",
-                ChatCommand.Death
+                ChatCommand.DeathAdd
             },
             {
                 "gestorben",
-                ChatCommand.Death
+                ChatCommand.DeathAdd
+            },
+            {
+                "rip--",
+                ChatCommand.DeathSub
+            },
+            {
+                "ripsub",
+                ChatCommand.DeathSub
+            },
+            {
+                "ripreset",
+                ChatCommand.DeathReset
+            },
+            {
+                "ripcount",
+                ChatCommand.RipCount
+            },
+            {
+                "rips",
+                ChatCommand.RipCount
             }
 
         };
