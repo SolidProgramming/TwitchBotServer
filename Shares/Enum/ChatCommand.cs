@@ -13,6 +13,7 @@ namespace Shares.Enum
         ShoutOut,
         Cheat,
         DeathAdd,
+        DeathSet,
         DeathSub,
         DeathReset,
         RipCount

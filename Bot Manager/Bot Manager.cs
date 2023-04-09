@@ -369,7 +369,7 @@ namespace Bot_Manager
         {
             string chatMessageText = chatMessage.Message;
 
-            if (chatMessageText.IsCommand(out Shares.Enum.ChatCommand? chatCommand))
+            if (chatMessageText.IsCommand(out Shares.Enum.ChatCommand? chatCommand, out int value))
             {
                 switch (chatCommand)
                 {
@@ -390,6 +390,9 @@ namespace Bot_Manager
                         break;
                     case Shares.Enum.ChatCommand.DeathReset:
                         HandleRipReset(bot, chatMessage);
+                        break;
+                    case Shares.Enum.ChatCommand.DeathSet:
+                        HandleRipSet(bot, chatMessage, value);
                         break;
                     default:
                         break;
@@ -468,7 +471,7 @@ namespace Bot_Manager
 
             LiteDBHelper.UpdateDeathCount(channelName, deathCount);
 
-            bot.TwitchClient.SendReply(channelName, userId, "OK!");
+            bot.TwitchClient.SendMessage(channelName, $"OK! Es sind jetzt nur noch { deathCount } Tode!");
         }
         private static async void HandleRipCount(TwitchBotModel bot, ChatMessage chatMessage)
         {
@@ -483,17 +486,23 @@ namespace Bot_Manager
                 BroadcasterName = channelName
             };
 
-            bot.TwitchClient.SendReply(channelName, userId, "OK!");
+            bot.TwitchClient.SendMessage(channelName, bot.Settings.DeathMessage.ToCustomTextWithParameter(customDeathCounter));
         }
         private static async void HandleRipReset(TwitchBotModel bot, ChatMessage chatMessage)
         {
             string channelName = bot.Settings.Channel;
-                        
-            string userId = chatMessage.UserId;
 
             LiteDBHelper.UpdateDeathCount(channelName, 0);
 
-            bot.TwitchClient.SendWhisper(userId, "OK!");
+            bot.TwitchClient.SendMessage(channelName, "OK! RIP Counter wurde zurückgesetzt!");
+        }
+        private static async void HandleRipSet(TwitchBotModel bot, ChatMessage chatMessage, int value)
+        {
+            string channelName = bot.Settings.Channel;
+
+            LiteDBHelper.UpdateDeathCount(channelName, 0);
+
+            bot.TwitchClient.SendMessage(channelName, $"OK! RIP Counter auf {value} gesetzt!");
         }
         private static void HandleLinkPosting(ref TwitchBotModel bot, ChatMessage chatMessage)
         {

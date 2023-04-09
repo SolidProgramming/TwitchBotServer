@@ -66,6 +66,7 @@ namespace Bot_Manager.LiteDB
 
             result.LastUpdate = DateTime.Now;
             result.Deaths = newDeathCount;
+          
 
             if (needInsert)
             {

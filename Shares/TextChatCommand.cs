@@ -55,6 +55,10 @@ namespace Shares
             {
                 "rips",
                 ChatCommand.RipCount
+            },
+            {
+                "deathset",
+                ChatCommand.DeathSet
             }
 
         };

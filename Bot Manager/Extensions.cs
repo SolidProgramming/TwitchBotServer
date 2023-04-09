@@ -12,16 +12,26 @@ namespace Bot_Manager
 {
     public static class Extensions
     {
-        public static bool IsCommand(this string text, out ChatCommand? command)
+        public static bool IsCommand(this string text, out ChatCommand? command, out int value)
         {
+            value = 0;
             command = null;
 
-            Regex regex = new("\\!(.*?)\\s|\\!(.*?)$");
+            Regex regex = new("(?:!(.*?)\\s|\\!(.*?)$)(?'value'\\s?\\d{0,3})");
 
-            bool isMatch = regex.Match(text).Success;
+            Match match = regex.Match(text);
+
+            bool isMatch = match.Success;
 
             if (!isMatch)
                 return false;
+
+            string valueGrp = match.Groups["value"].Value;
+
+            if (!string.IsNullOrEmpty(valueGrp))
+            {
+                int.TryParse(valueGrp, out value);
+            }
 
             GroupCollection matches = regex.Match(text).Groups;
 
